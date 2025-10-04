@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小豆脸书服务导航站</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: all 0.25s ease;
+        }
+
+        /* 基础配色（清新风保留，移除外部依赖） */
+        :root {
+            --accent: #6d917d;
+            --accent-light: #f1f5f3;
+            --text-primary: #333639;
+            --text-secondary: #787d82;
+            --bg-base: #fff;
+            --bg-card: #fafbfb;
+            --border-light: #e5e7eb;
+        }
+
+        body.dark-mode {
+            --accent: #8cbfa7;
+            --accent-light: #2a3630;
+            --text-primary: #f0f2f1;
+            --text-secondary: #aab0b5;
+            --bg-base: #1a1c1b;
+            --bg-card: #232624;
+            --border-light: #383c3a;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            color: var(--text-primary);
+            background: var(--bg-base);
+            padding: 30px 20px;
+            max-width: 850px;
+            margin: 0 auto;
+            min-height: 100vh;
+        }
+
+        /* 主题切换按钮（纯CSS，无外部依赖） */
+        .theme-toggle {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+
+        .theme-toggle:hover {
+            color: var(--accent);
+            border-color: var(--accent-light);
+        }
+
+        /* 头部样式 */
+        header {
+            margin-bottom: 40px;
+            padding-bottom: 18px;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        header h1 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .description {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+        }
+
+        /* 分类板块 */
+        .category {
+            margin-bottom: 45px;
+        }
+
+        .category-title {
+            font-size: 1.15rem;
+            font-weight: 500;
+            margin-bottom: 18px;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* 链接网格 */
+        .links {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 18px;
+        }
+
+        /* 链接卡片（纯CSS图标，无外部库） */
+        .link-item {
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
+            border-radius: 10px;
+            padding: 18px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .link-item:hover {
+            border-color: var(--accent-light);
+            background: var(--accent-light);
+            transform: translateY(-2px);
+        }
+
+        .link-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 8px;
+            background: var(--bg-base);
+            border: 1px solid var(--border-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent);
+            font-size: 1.3rem;
+        }
+
+        .link-item:hover .link-icon {
+            background: var(--accent);
+            color: var(--bg-base);
+            border-color: var(--accent);
+        }
+
+        .link-item a {
+            text-decoration: none;
+            color: var(--text-primary);
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .link-content div:first-child {
+            font-size: 1rem;
+            font-weight: 500;
+            margin-bottom: 3px;
+        }
+
+        .link-description {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        /* 底部 */
+        footer {
+            margin-top: 60px;
+            padding-top: 18px;
+            border-top: 1px solid var(--border-light);
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        /* 响应式 */
+        @media (max-width: 480px) {
+            .theme-toggle {
+                position: relative;
+                top: auto;
+                right: auto;
+                margin-bottom: 20px;
+                margin-left: auto;
+            }
+            .links {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="theme-toggle" id="themeToggle" aria-label="切换主题">🌙</button>
+    
+    <header>
+        <h1>小豆脸书服务导航站</h1>
+        <p class="description">整理官方服务与实用工具入口，让操作更便捷</p>
+    </header>
+    
+    <main>
+        <section class="category">
+            <h2 class="category-title">🛡️ 官方服务</h2>
+            <div class="links">
+                <div class="link-item">
+                    <a href="https://new.kaijunjs.com/shop/xdfb" target="_blank" rel="noopener noreferrer">
+                        <div class="link-icon">🛒</div>
+                        <div class="link-content">
+                            <div>官方卡网</div>
+                            <div class="link-description">小豆脸书账号官方购买平台</div>
+                        </div>
+                    </a>
+                </div>
+                <div class="link-item">
+                    <a href="https://t.me/xiaodou666bot" target="_blank" rel="noopener noreferrer">
+                        <div class="link-icon">💬</div>
+                        <div class="link-content">
+                            <div>官方客服</div>
+                            <div class="link-description">Telegram客服机器人</div>
+                        </div>
+                    </a>
+                </div>
+                <div class="link-item">
+                    <a href="https://t.me/xdbjh666" target="_blank" rel="noopener noreferrer">
+                        <div class="link-icon">📢</div>
+                        <div class="link-content">
+                            <div>官方频道</div>
+                            <div class="link-description">Telegram官方资讯频道</div>
+                        </div>
+                    </a>
+                </div>
+                <div class="link-item">
+                    <a href="https://t.me/xdfb180" target="_blank" rel="noopener noreferrer">
+                        <div class="link-icon">👥</div>
+                        <div class="link-content">
+                            <div>官方群组</div>
+                            <div class="link-description">Telegram交流群组</div>
+                        </div>
+                    </a>
+                </div>
+                <div class="link-item">
+                    <a href="https://www.facebook.com/" target="_blank" rel="noopener noreferrer">
+                        <div class="link-icon">🌐</div>
+                        <div class="link-content">
+                            <div>脸书官网</div>
+                            <div class="link-description">Facebook官方网站</div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </section>
+        
+        <section class="category">
+            <h2 class="category-title">🔧 实用工具</h2>
+            <div class="links">
+                <div class="link-item">
+                    <a href="https://2fa.run" target="_blank" rel="noopener noreferrer">
+                        <div class="link-icon">🔒</div>
+                        <div class="link-content">
+                            <div>2FA工具</div>
+                            <div class="link-description">脸书账号二次验证工具</div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+    
+    <footer>
+        <p>© 2025 小豆脸书服务导航站 | 仅供学习交流</p>
+    </footer>
+
+    <script>
+        // 简化主题切换逻辑，确保稳定运行
+        const themeToggle = document.getElementById('themeToggle');
+        const body = document.body;
+
+        // 初始化主题
+        if (localStorage.getItem('theme') === 'dark' || 
+            (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            body.classList.add('dark-mode');
+            themeToggle.textContent = '☀️';
+        }
+
+        // 切换事件
+        themeToggle.addEventListener('click', () => {
+            body.classList.toggle('dark-mode');
+            if (body.classList.contains('dark-mode')) {
+                themeToggle.textContent = '☀️';
+                localStorage.setItem('theme', 'dark');
+            } else {
+                themeToggle.textContent = '🌙';
+                localStorage.setItem('theme', 'light');
+            }
+        });
+    </script>
+</body>
+</html>
