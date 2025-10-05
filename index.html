@@ -2,295 +2,208 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>小豆脸书服务导航站</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>小豆脸书服务导航</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            transition: all 0.25s ease;
-        }
-
-        /* 基础配色（清新风保留，移除外部依赖） */
-        :root {
-            --accent: #6d917d;
-            --accent-light: #f1f5f3;
-            --text-primary: #333639;
-            --text-secondary: #787d82;
-            --bg-base: #fff;
-            --bg-card: #fafbfb;
-            --border-light: #e5e7eb;
-        }
-
-        body.dark-mode {
-            --accent: #8cbfa7;
-            --accent-light: #2a3630;
-            --text-primary: #f0f2f1;
-            --text-secondary: #aab0b5;
-            --bg-base: #1a1c1b;
-            --bg-card: #232624;
-            --border-light: #383c3a;
-        }
-
-        body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            color: var(--text-primary);
-            background: var(--bg-base);
-            padding: 30px 20px;
-            max-width: 850px;
-            margin: 0 auto;
-            min-height: 100vh;
         }
 
-        /* 主题切换按钮（纯CSS，无外部依赖） */
-        .theme-toggle {
-            position: fixed;
-            top: 30px;
-            right: 30px;
-            background: var(--bg-card);
-            border: 1px solid var(--border-light);
-            border-radius: 8px;
-            width: 40px;
-            height: 40px;
-            cursor: pointer;
-            color: var(--text-secondary);
-            font-size: 1.1rem;
+        /* 核心：用「高饱和对比色+块状渐变+硬边界过渡」让渐变更突出 */
+        body {
+            /* 1. 四色高反差橙色系渐变：从深红橙到亮黄橙，色彩差异拉满，渐变边界清晰 */
+            background: 
+                linear-gradient(45deg, #ff3300 20%, #ff8800 40%, #ffcc33 60%, #fff099 80%),
+                radial-gradient(circle at 20% 80%, #ff4400 15%, transparent 16%),
+                radial-gradient(circle at 80% 20%, #ffdd55 15%, transparent 16%);
+            background-size: 300% 300%; /* 超大面积背景，放大渐变区块，流动时更易察觉 */
+            
+            /* 2. 动画保留快节奏+大位移，强化渐变区块的位置变化 */
+            animation: strongGradientFlow 5s ease-in-out infinite alternate;
+            
+            /* 3. 降低模糊度至12px：避免高饱和色被过度柔化，让渐变边界更锐利 */
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px 15px;
+            gap: clamp(20px, 5vw, 35px);
+            overflow: hidden;
+        }
+
+        /* 强渐变流动动画：X/Y轴大跨度位移，让不同色块交替显现，渐变变化更直观 */
+        @keyframes strongGradientFlow {
+            0% { background-position: 0% 0%; opacity: 1; }
+            100% { background-position: 100% 100%; opacity: 0.95; }
+        }
+
+        /* 头像容器：用深色边框强化轮廓，避免被高饱和背景“淹没” */
+        .avatar-circle {
+            width: clamp(120px, 25vw, 180px);
+            height: clamp(120px, 25vw, 180px);
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 2px solid #fff; /* 加粗白色边框，增强与高饱和背景的对比 */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            /* 阴影随渐变同步变色，强化背景关联感 */
+            animation: avatarShadowFlow 5s ease-in-out infinite alternate;
+            transition: transform 0.3s ease;
+        }
+
+        @keyframes avatarShadowFlow {
+            0% { box-shadow: 0 0 30px rgba(255,51,0,0.5), inset 0 0 20px rgba(255,255,255,0.5); }
+            100% { box-shadow: 0 0 30px rgba(255,221,85,0.5), inset 0 0 20px rgba(255,255,255,0.5); }
+        }
+
+        .avatar-circle:hover {
+            transform: scale(1.05);
+        }
+
+        .avatar-img {
+            width: 80%;
+            height: 80%;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #fff;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.25); /* 加深头像阴影，避免与背景融合 */
+        }
+
+        .nav-title {
+            font-size: clamp(16px, 3vw, 20px);
+            font-weight: 600; /* 加粗标题，增强文字存在感 */
+            text-align: center;
+            letter-spacing: 0.5px;
+            text-shadow: 0 0 10px rgba(0,0,0,0.2); /* 加深色阴影，让文字在高饱和背景上更清晰 */
+            animation: titleFlow 5s ease-in-out infinite alternate;
+        }
+
+        @keyframes titleFlow {
+            0% { transform: translateX(-8px); }
+            100% { transform: translateX(8px); }
+        }
+
+        .button-container {
+            display: flex;
+            flex-direction: column;
+            gap: clamp(12px, 3vw, 18px);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        /* 按钮：用深色边框+高对比阴影，避免被强渐变背景弱化 */
+        .nav-ellipse {
+            padding: 16px 0;
+            border-radius: 50px;
+            background: rgba(255,255,255,0.25);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid #fff;
+            text-align: center;
+            text-decoration: none;
+            color: #fff;
+            font-size: 17px;
+            font-weight: 500;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.2); /* 加深色阴影，增强按钮立体感 */
+            transition: all 0.3s ease;
             display: flex;
             align-items: center;
             justify-content: center;
-            z-index: 100;
+            gap: 12px;
+            animation: btnBgFlow 5s ease-in-out infinite alternate;
         }
 
-        .theme-toggle:hover {
-            color: var(--accent);
-            border-color: var(--accent-light);
+        @keyframes btnBgFlow {
+            0% { background: rgba(255,255,255,0.2); }
+            100% { background: rgba(255,255,255,0.3); }
         }
 
-        /* 头部样式 */
-        header {
-            margin-bottom: 40px;
-            padding-bottom: 18px;
-            border-bottom: 1px solid var(--border-light);
-        }
-
-        header h1 {
-            font-size: 1.8rem;
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-
-        .description {
-            font-size: 0.95rem;
-            color: var(--text-secondary);
-        }
-
-        /* 分类板块 */
-        .category {
-            margin-bottom: 45px;
-        }
-
-        .category-title {
-            font-size: 1.15rem;
-            font-weight: 500;
-            margin-bottom: 18px;
-            color: var(--accent);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        /* 链接网格 */
-        .links {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 18px;
-        }
-
-        /* 链接卡片（纯CSS图标，无外部库） */
-        .link-item {
-            background: var(--bg-card);
-            border: 1px solid var(--border-light);
-            border-radius: 10px;
-            padding: 18px;
-            display: flex;
-            align-items: center;
-            gap: 14px;
-        }
-
-        .link-item:hover {
-            border-color: var(--accent-light);
-            background: var(--accent-light);
+        .nav-ellipse:hover {
+            background: rgba(255,255,255,0.4);
+            box-shadow: 0 5px 18px rgba(0,0,0,0.25);
             transform: translateY(-2px);
         }
 
-        .link-icon {
-            width: 42px;
-            height: 42px;
-            border-radius: 8px;
-            background: var(--bg-base);
-            border: 1px solid var(--border-light);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--accent);
-            font-size: 1.3rem;
-        }
-
-        .link-item:hover .link-icon {
-            background: var(--accent);
-            color: var(--bg-base);
-            border-color: var(--accent);
-        }
-
-        .link-item a {
-            text-decoration: none;
-            color: var(--text-primary);
-            width: 100%;
-            display: flex;
-            align-items: center;
-            gap: 14px;
-        }
-
-        .link-content div:first-child {
-            font-size: 1rem;
-            font-weight: 500;
-            margin-bottom: 3px;
-        }
-
-        .link-description {
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-        }
-
-        /* 底部 */
-        footer {
-            margin-top: 60px;
-            padding-top: 18px;
-            border-top: 1px solid var(--border-light);
+        .emoji-icon {
+            font-size: 20px;
+            width: 24px;
             text-align: center;
-            font-size: 0.85rem;
-            color: var(--text-secondary);
+            text-shadow: 0 0 5px rgba(0,0,0,0.15);
         }
 
-        /* 响应式 */
-        @media (max-width: 480px) {
-            .theme-toggle {
-                position: relative;
-                top: auto;
-                right: auto;
-                margin-bottom: 20px;
-                margin-left: auto;
+        .copyright {
+            position: fixed;
+            bottom: 15px;
+            font-size: clamp(12px, 2vw, 14px);
+            color: #fff;
+            text-align: center;
+            text-shadow: 0 0 5px rgba(0,0,0,0.2);
+            animation: copyrightFlow 5s ease-in-out infinite alternate;
+        }
+
+        @keyframes copyrightFlow {
+            0% { transform: translateX(5px); }
+            100% { transform: translateX(-5px); }
+        }
+
+        @media (max-width: 320px) {
+            .nav-ellipse {
+                padding: 14px 0;
+                font-size: 16px;
+                gap: 10px;
             }
-            .links {
-                grid-template-columns: 1fr;
+            .emoji-icon {
+                font-size: 18px;
+                width: 22px;
             }
         }
     </style>
 </head>
 <body>
-    <button class="theme-toggle" id="themeToggle" aria-label="切换主题">🌙</button>
-    
-    <header>
-        <h1>小豆脸书服务导航站</h1>
-        <p class="description">整理官方服务与实用工具入口，让操作更便捷</p>
-    </header>
-    
-    <main>
-        <section class="category">
-            <h2 class="category-title">🛡️ 官方服务</h2>
-            <div class="links">
-                <div class="link-item">
-                    <a href="https://new.kaijunjs.com/shop/xdfb" target="_blank" rel="noopener noreferrer">
-                        <div class="link-icon">🛒</div>
-                        <div class="link-content">
-                            <div>官方卡网</div>
-                            <div class="link-description">小豆脸书账号官方购买平台</div>
-                        </div>
-                    </a>
-                </div>
-                <div class="link-item">
-                    <a href="https://t.me/xiaodou666bot" target="_blank" rel="noopener noreferrer">
-                        <div class="link-icon">💬</div>
-                        <div class="link-content">
-                            <div>官方客服</div>
-                            <div class="link-description">Telegram客服机器人</div>
-                        </div>
-                    </a>
-                </div>
-                <div class="link-item">
-                    <a href="https://t.me/xdbjh666" target="_blank" rel="noopener noreferrer">
-                        <div class="link-icon">📢</div>
-                        <div class="link-content">
-                            <div>官方频道</div>
-                            <div class="link-description">Telegram官方资讯频道</div>
-                        </div>
-                    </a>
-                </div>
-                <div class="link-item">
-                    <a href="https://t.me/xdfb180" target="_blank" rel="noopener noreferrer">
-                        <div class="link-icon">👥</div>
-                        <div class="link-content">
-                            <div>官方群组</div>
-                            <div class="link-description">Telegram交流群组</div>
-                        </div>
-                    </a>
-                </div>
-                <div class="link-item">
-                    <a href="https://www.facebook.com/" target="_blank" rel="noopener noreferrer">
-                        <div class="link-icon">🌐</div>
-                        <div class="link-content">
-                            <div>脸书官网</div>
-                            <div class="link-description">Facebook官方网站</div>
-                        </div>
-                    </a>
-                </div>
-            </div>
-        </section>
-        
-        <section class="category">
-            <h2 class="category-title">🔧 实用工具</h2>
-            <div class="links">
-                <div class="link-item">
-                    <a href="https://2fa.run" target="_blank" rel="noopener noreferrer">
-                        <div class="link-icon">🔒</div>
-                        <div class="link-content">
-                            <div>2FA工具</div>
-                            <div class="link-description">脸书账号二次验证工具</div>
-                        </div>
-                    </a>
-                </div>
-            </div>
-        </section>
-    </main>
-    
-    <footer>
-        <p>© 2025 小豆脸书服务导航站 | 仅供学习交流</p>
-    </footer>
+    <div class="avatar-circle">
+        <img src="https://s1.imagehub.cc/images/2025/10/05/e24ffc5fc95353cffc68de555bd7a106.jpg" alt="小豆脸书服务头像" class="avatar-img">
+    </div>
 
-    <script>
-        // 简化主题切换逻辑，确保稳定运行
-        const themeToggle = document.getElementById('themeToggle');
-        const body = document.body;
+    <h2 class="nav-title">小豆脸书服务导航</h2>
 
-        // 初始化主题
-        if (localStorage.getItem('theme') === 'dark' || 
-            (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-            body.classList.add('dark-mode');
-            themeToggle.textContent = '☀️';
-        }
+    <div class="button-container">
+        <a href="https://new.kaijunjs.com/shop/xdfb" target="_blank" rel="noopener noreferrer" class="nav-ellipse">
+            <span class="emoji-icon">🛒</span>
+            <span>官方卡网</span>
+        </a>
+        <a href="https://t.me/xdbjh666" target="_blank" rel="noopener noreferrer" class="nav-ellipse">
+            <span class="emoji-icon">📢</span>
+            <span>官方频道</span>
+        </a>
+        <a href="https://t.me/xiaodou666bot" target="_blank" rel="noopener noreferrer" class="nav-ellipse">
+            <span class="emoji-icon">💬</span>
+            <span>官方客服</span>
+        </a>
+        <a href="https://t.me/xdfb180" target="_blank" rel="noopener noreferrer" class="nav-ellipse">
+            <span class="emoji-icon">👥</span>
+            <span>官方群组</span>
+        </a>
+        <a href="https://www.facebook.com/" target="_blank" rel="noopener noreferrer" class="nav-ellipse">
+            <span class="emoji-icon">🌐</span>
+            <span>脸书官网</span>
+        </a>
+        <a href="https://2fa.run" target="_blank" rel="noopener noreferrer" class="nav-ellipse">
+            <span class="emoji-icon">🔒</span>
+            <span>2FA验证工具</span>
+        </a>
+    </div>
 
-        // 切换事件
-        themeToggle.addEventListener('click', () => {
-            body.classList.toggle('dark-mode');
-            if (body.classList.contains('dark-mode')) {
-                themeToggle.textContent = '☀️';
-                localStorage.setItem('theme', 'dark');
-            } else {
-                themeToggle.textContent = '🌙';
-                localStorage.setItem('theme', 'light');
-            }
-        });
-    </script>
+    <div class="copyright">© 2025 小豆脸书服务导航 | 仅供学习交流</div>
 </body>
 </html>
