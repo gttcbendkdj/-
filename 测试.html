@@ -1,0 +1,1171 @@
+<!DOCTYPE html><html lang="zh-CN"><head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Facebook UID 存活检测</title>
+    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <link rel='stylesheet' href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --rice-paper: #f7f3e9;
+            --pencil-gray: #8b867c; 
+            --pencil-dark: #5d5950; 
+            --tape-beige: #e8dfc4; 
+            --tape-shadow: #d4caaf; 
+            --seal-red: #c43b4e; 
+            --seal-green: #4a7c59;
+            --radius: 8px;
+            --spacing: 28px;
+            --transition: all 0.3s ease;
+            --font-main: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif; 
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: var(--font-main);
+        }
+        body {
+            background-color: var(--rice-paper);
+            background-image: 
+                linear-gradient(rgba(139, 134, 124, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(139, 134, 124, 0.05) 1px, transparent 1px);
+            background-size: 20px 20px; 
+            color: var(--pencil-dark);
+            font-size: 15px;
+            padding: 30px 16px;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .card {
+            background-color: var(--rice-paper);
+            border: 1px solid var(--pencil-gray);
+            border-radius: var(--radius);
+            padding: 28px;
+            margin-bottom: var(--spacing);
+            box-shadow: 3px 3px 0 rgba(139, 134, 124, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        .card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--pencil-gray), transparent);
+        }
+        .card-header {
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 24px;
+            color: var(--pencil-dark);
+            text-align: center;
+            letter-spacing: 2px;
+            position: relative;
+        }
+        .card-header::after {
+            content: "";
+            display: block;
+            width: 60px;
+            height: 1px;
+            background-color: var(--pencil-gray);
+            margin: 12px auto;
+        }
+        .form-group {
+            margin-bottom: 24px;
+        }
+        .form-label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 500;
+            color: var(--pencil-dark);
+            font-size: 14px;
+            letter-spacing: 1px;
+        }
+        .form-control {
+            width: 100%;
+            background-color: rgba(255, 255, 255, 0.6);
+            border: 1px solid var(--pencil-gray);
+            border-radius: var(--radius);
+            padding: 12px 16px;
+            font-size: 15px;
+            color: var(--pencil-dark);
+            transition: var(--transition);
+            box-shadow: inset 1px 1px 3px rgba(139, 134, 124, 0.05);
+        }
+        .form-control:focus {
+            border-color: var(--pencil-dark);
+            box-shadow: inset 1px 1px 3px rgba(139, 134, 124, 0.1), 0 0 0 3px rgba(139, 134, 124, 0.08);
+            outline: none;
+        }
+        
+        #inputContent {
+            min-height: 150px;
+            resize: vertical;
+            white-space: nowrap;
+            overflow-x: auto;
+            line-height: 1.6;
+        }
+       
+        .btn-group {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .tape-btn {
+            flex: 1;
+            padding: 14px 0;
+            border-radius: var(--radius);
+            border: 1px solid var(--tape-shadow);
+            background-color: var(--tape-beige);
+            color: var(--pencil-dark);
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            letter-spacing: 1px;
+            box-shadow: 
+                2px 2px 0 var(--tape-shadow),
+                inset 0 0 0 1px rgba(255, 255, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        .tape-btn::before {
+            
+            content: "";
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            box-shadow: -5px -5px 0 rgba(255, 255, 255, 0.4);
+            transform: translate(50%, -50%);
+        }
+        .tape-btn:hover {
+            background-color: #e0d4b8;
+            box-shadow: 
+                3px 3px 0 var(--tape-shadow),
+                inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+        .tape-btn:active {
+            transform: translateY(0);
+            box-shadow: 
+                1px 1px 0 var(--tape-shadow),
+                inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+        }
+        /* 手绘圆点进度条 */
+        .progress-container {
+            display: none;
+            margin-bottom: 24px;
+        }
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            font-size: 14px;
+            color: var(--pencil-dark);
+            letter-spacing: 1px;
+        }
+        .dot-progress {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            padding: 10px 0;
+            border-top: 1px dashed var(--pencil-gray);
+            border-bottom: 1px dashed var(--pencil-gray);
+        }
+        .progress-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: 1px solid var(--pencil-gray);
+            background-color: transparent;
+            transition: var(--transition);
+            flex-shrink: 0;
+        }
+        .progress-dot.active {
+            background-color: var(--pencil-dark);
+            box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.1);
+        }
+        .progress-desc {
+            margin-top: 10px;
+            font-size: 13px;
+            color: var(--pencil-gray);
+            text-align: center;
+            letter-spacing: 1px;
+        }
+      
+        .results {
+            border: 1px solid var(--pencil-gray);
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: 3px 3px 0 rgba(139, 134, 124, 0.1);
+            margin-bottom: var(--spacing);
+        }
+        .result-tabs {
+            display: flex;
+            border-bottom: 1px solid var(--pencil-gray);
+        }
+        .result-tab {
+            flex: 1;
+            padding: 14px 0;
+            background-color: rgba(255, 255, 255, 0.4);
+            border: none;
+            font-size: 15px;
+            color: var(--pencil-dark);
+            cursor: pointer;
+            transition: var(--transition);
+            letter-spacing: 1px;
+        }
+        .result-tab.active {
+            background-color: var(--rice-paper);
+            border-bottom: 2px solid var(--pencil-dark);
+            font-weight: 600;
+        }
+        .result-tab:hover:not(.active) {
+            background-color: rgba(255, 255, 255, 0.6);
+        }
+        .result-content {
+            padding: 24px;
+            background-color: var(--rice-paper);
+            display: none;
+        }
+        .result-content.active {
+            display: block;
+        }
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            font-size: 18px;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+        .seal-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            position: relative;
+        }
+        .seal-red {
+            background-color: rgba(196, 59, 78, 0.1);
+            border: 2px solid var(--seal-red);
+            color: var(--seal-red);
+        }
+        .seal-green {
+            background-color: rgba(74, 124, 89, 0.1);
+            border: 2px solid var(--seal-green);
+            color: var(--seal-green);
+        }
+        .seal-icon::after {
+           
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: 1px dashed currentColor;
+            transform: translate(-50%, -50%);
+        }
+        .count-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            border: 1px solid var(--pencil-gray);
+            background-color: rgba(255, 255, 255, 0.4);
+        }
+        #liveUIDs, #deadUIDs, #historyLiveUIDs, #historyDeadUIDs {
+            width: 100%;
+            min-height: 180px;
+            resize: vertical;
+            background-color: rgba(255, 255, 255, 0.6);
+            border: 1px solid var(--pencil-gray);
+            border-radius: var(--radius);
+            padding: 16px;
+            font-size: 15px;
+            color: var(--pencil-dark);
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            overflow-y: auto;
+            line-height: 1.8;
+            box-shadow: inset 1px 1px 3px rgba(139, 134, 124, 0.05);
+        }
+        .copy-btn {
+            width: 100%;
+            margin-top: 16px;
+            padding: 12px 0;
+            border-radius: var(--radius);
+            border: 1px solid var(--tape-shadow);
+            background-color: var(--tape-beige);
+            color: var(--pencil-dark);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            letter-spacing: 1px;
+            box-shadow: 2px 2px 0 var(--tape-shadow);
+        }
+        .copy-btn:hover {
+            background-color: #e0d4b8;
+            transform: translateY(-2px);
+            box-shadow: 3px 3px 0 var(--tape-shadow);
+        }
+        
+        .save-prompt {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--rice-paper);
+            border: 1px solid var(--pencil-gray);
+            border-radius: var(--radius);
+            padding: 20px 24px;
+            box-shadow: 4px 4px 0 rgba(139, 134, 124, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            z-index: 1000;
+            max-width: 90%;
+            animation: fadeInUp 0.3s ease;
+        }
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translate(-50%, 20px);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, 0);
+            }
+        }
+        .prompt-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: rgba(74, 124, 89, 0.1);
+            border: 2px solid var(--seal-green);
+            color: var(--seal-green);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+        .prompt-text {
+            font-size: 15px;
+            color: var(--pencil-dark);
+            letter-spacing: 1px;
+            flex: 1;
+        }
+        .prompt-buttons {
+            display: flex;
+            gap: 12px;
+        }
+        .prompt-btn {
+            padding: 8px 16px;
+            border-radius: var(--radius);
+            border: 1px solid var(--tape-shadow);
+            background-color: var(--tape-beige);
+            color: var(--pencil-dark);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            letter-spacing: 1px;
+            box-shadow: 2px 2px 0 var(--tape-shadow);
+        }
+        .prompt-btn:hover {
+            background-color: #e0d4b8;
+            transform: translateY(-2px);
+            box-shadow: 3px 3px 0 var(--tape-shadow);
+        }
+        .prompt-btn.cancel {
+            background-color: rgba(255, 255, 255, 0.6);
+            border-color: var(--pencil-gray);
+            box-shadow: 2px 2px 0 var(--pencil-gray);
+        }
+        .prompt-btn.cancel:hover {
+            background-color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .history-section {
+            border: 1px solid var(--pencil-gray);
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: 3px 3px 0 rgba(139, 134, 124, 0.1);
+            margin-bottom: var(--spacing);
+        }
+        .history-header {
+            padding: 18px 24px;
+            border-bottom: 1px solid var(--pencil-gray);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: rgba(255, 255, 255, 0.4);
+        }
+        .history-title {
+            font-size: 18px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .history-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: rgba(139, 134, 124, 0.1);
+            border: 2px solid var(--pencil-gray);
+            color: var(--pencil-dark);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+        .history-actions {
+            display: flex;
+            gap: 12px;
+        }
+        .history-btn {
+            padding: 8px 16px;
+            border-radius: var(--radius);
+            border: 1px solid var(--tape-shadow);
+            background-color: var(--tape-beige);
+            color: var(--pencil-dark);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            letter-spacing: 1px;
+            box-shadow: 2px 2px 0 var(--tape-shadow);
+        }
+        .history-btn:hover {
+            background-color: #e0d4b8;
+            transform: translateY(-2px);
+            box-shadow: 3px 3px 0 var(--tape-shadow);
+        }
+        .history-list {
+            padding: 24px;
+            background-color: var(--rice-paper);
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .history-item {
+            border: 1px solid var(--pencil-gray);
+            border-radius: var(--radius);
+            padding: 16px;
+            margin-bottom: 16px;
+            background-color: rgba(255, 255, 255, 0.4);
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .history-item:hover {
+            background-color: rgba(255, 255, 255, 0.6);
+            transform: translateY(-2px);
+            box-shadow: 3px 3px 0 rgba(139, 134, 124, 0.1);
+        }
+        .history-item.active {
+            border-left: 3px solid var(--seal-green);
+            background-color: rgba(74, 124, 89, 0.05);
+        }
+        .history-item-content {
+            flex: 1;
+        }
+        .history-item-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        .history-time {
+            font-size: 14px;
+            color: var(--pencil-gray);
+        }
+        .history-counts {
+            display: flex;
+            gap: 16px;
+            font-size: 14px;
+        }
+        .history-live-count {
+            color: var(--seal-green);
+        }
+        .history-dead-count {
+            color: var(--seal-red);
+        }
+        .history-item-desc {
+            font-size: 13px;
+            color: var(--pencil-gray);
+            letter-spacing: 0.5px;
+        }
+        
+        .delete-item-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 1px solid var(--seal-red);
+            background-color: rgba(196, 59, 78, 0.05);
+            color: var(--seal-red);
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 16px;
+            flex-shrink: 0;
+        }
+        .delete-item-btn:hover {
+            background-color: rgba(196, 59, 78, 0.1);
+            transform: scale(1.1);
+            box-shadow: 2px 2px 0 rgba(196, 59, 78, 0.1);
+        }
+        .history-detail {
+            padding: 24px;
+            background-color: var(--rice-paper);
+            border-top: 1px solid var(--pencil-gray);
+            display: none;
+        }
+        .history-detail.active {
+            display: block;
+        }
+        .history-detail-tabs {
+            display: flex;
+            border-bottom: 1px solid var(--pencil-gray);
+            margin-bottom: 20px;
+        }
+        .history-detail-tab {
+            flex: 1;
+            padding: 12px 0;
+            background-color: rgba(255, 255, 255, 0.4);
+            border: none;
+            font-size: 14px;
+            color: var(--pencil-dark);
+            cursor: pointer;
+            transition: var(--transition);
+            letter-spacing: 1px;
+            text-align: center;
+        }
+        .history-detail-tab.active {
+            background-color: var(--rice-paper);
+            border-bottom: 2px solid var(--pencil-dark);
+            font-weight: 600;
+        }
+        .history-detail-content {
+            display: none;
+        }
+        .history-detail-content.active {
+            display: block;
+        }
+        .no-history {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--pencil-gray);
+            font-size: 15px;
+            letter-spacing: 1px;
+        }
+        /* 响应式调整 */
+        @media (max-width: 767px) {
+            .card {
+                padding: 20px;
+            }
+            .btn-group {
+                flex-direction: column;
+                gap: 12px;
+            }
+            .dot-progress {
+                gap: 6px;
+            }
+            .progress-dot {
+                width: 10px;
+                height: 10px;
+            }
+            .result-header {
+                flex-direction: column;
+                gap: 12px;
+                align-items: flex-start;
+            }
+            .save-prompt {
+                flex-direction: column;
+                text-align: center;
+                padding: 16px;
+            }
+            .prompt-buttons {
+                width: 100%;
+                justify-content: center;
+            }
+            .history-header {
+                flex-direction: column;
+                gap: 12px;
+                text-align: center;
+            }
+            .history-actions {
+                width: 100%;
+                justify-content: center;
+            }
+            .history-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .delete-item-btn {
+                margin-left: 0;
+                margin-top: 12px;
+                align-self: flex-end;
+            }
+            .history-item-header {
+                flex-direction: column;
+                gap: 8px;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        
+        <div class="card">
+            <div class="card-header">FACEBOOK UID 存活检测</div>
+            <div class="form-group">
+                <label for="inputContent" class="form-label">输入内容（自动提取14位连续数字）</label>
+                <textarea id="inputContent" class="form-control" placeholder="示例：user_12345678901234 / https://facebook.com/12345678901234 / 纯14位数字"></textarea>
+            </div>
+
+            <div class="btn-group">
+                <button id="checkBtn" class="tape-btn">开始检测</button>
+                <button id="clearBtn" class="tape-btn">清空内容</button>
+            </div>
+
+            
+            <div id="progressContainer" class="progress-container">
+                <div class="progress-info">
+                    <span>检测进度</span>
+                    <span id="progressPercent">0%</span>
+                </div>
+                <div class="dot-progress" id="dotProgress">
+                    
+                    <div class="progress-dot"></div>
+                    <div class="progress-dot"></div>
+                    <div class="progress-dot"></div>
+                    <div class="progress-dot"></div>
+                    <div class="progress-dot"></div>
+                    <div class="progress-dot"></div>
+                    <div class="progress-dot"></div>
+                    <div class="progress-dot"></div>
+                    <div class="progress-dot"></div>
+                    <div class="progress-dot"></div>
+                </div>
+                <div class="progress-desc">
+                    已处理：<span id="processed">0</span>/<span id="total">0</span>
+                </div>
+            </div>
+        </div>
+
+        
+        <div class="results">
+            <div class="result-tabs">
+                <button class="result-tab active" data-target="liveContent">存活UID</button>
+                <button class="result-tab" data-target="deadContent">失效UID</button>
+            </div>
+
+            
+            <div class="result-content active" id="liveContent">
+                <div class="result-header">
+                    <div class="seal-icon seal-green">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <span class="count-badge" id="liveCount">存活数量：0</span>
+                </div>
+                <textarea id="liveUIDs" readonly placeholder="暂无存活UID"></textarea>
+                <button id="copyLiveBtn" class="copy-btn">复制存活UID</button>
+            </div>
+
+            
+            <div class="result-content" id="deadContent">
+                <div class="result-header">
+                    <div class="seal-icon seal-red">
+                        <i class="fas fa-times"></i>
+                    </div>
+                    <span class="count-badge" id="deadCount">失效数量：0</span>
+                </div>
+                <textarea id="deadUIDs" readonly placeholder="暂无失效UID"></textarea>
+                <button id="copyDeadBtn" class="copy-btn">复制失效UID</button>
+            </div>
+        </div>
+
+        
+        <div class="history-section">
+            <div class="history-header">
+                <div class="history-title">
+                    <div class="history-icon">
+                        <i class="fas fa-history"></i>
+                    </div>
+                    历史检测记录
+                </div>
+                <div class="history-actions">
+                    <button id="refreshHistoryBtn" class="history-btn">刷新记录</button>
+                    <button id="clearAllHistoryBtn" class="history-btn">清空全部</button>
+                </div>
+            </div>
+            <div class="history-list" id="historyList">
+                
+                <div class="no-history" id="noHistoryTip">暂无历史检测记录</div>
+                
+            </div>
+            <div class="history-detail" id="historyDetail">
+                <div class="history-detail-tabs">
+                    <button class="history-detail-tab active" data-target="historyLiveContent">历史存活UID</button>
+                    <button class="history-detail-tab" data-target="historyDeadContent">历史失效UID</button>
+                </div>
+                <div class="history-detail-content active" id="historyLiveContent">
+                    <textarea id="historyLiveUIDs" readonly placeholder="暂无历史存活UID"></textarea>
+                    <button id="copyHistoryLiveBtn" class="copy-btn">复制历史存活UID</button>
+                </div>
+                <div class="history-detail-content" id="historyDeadContent">
+                    <textarea id="historyDeadUIDs" readonly placeholder="暂无历史失效UID"></textarea>
+                    <button id="copyHistoryDeadBtn" class="copy-btn">复制历史失效UID</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+    <div class="save-prompt" id="savePrompt" style="display: none;">
+        <div class="prompt-icon">
+            <i class="fas fa-save"></i>
+        </div>
+        <div class="prompt-text">检测完成！是否保存结果到本地浏览器？</div>
+        <div class="prompt-buttons">
+            <button class="prompt-btn cancel" id="cancelSaveBtn">取消</button>
+            <button class="prompt-btn" id="confirmSaveBtn">保存</button>
+        </div>
+    </div>
+
+    <script>
+        
+        function extract14DigitUIDs(rawInput) {
+            const uidRegex = /\d{14}/g;
+            const matches = rawInput.match(uidRegex);
+            return matches ? Array.from(new Set(matches)) : []; // 去重
+        }
+
+        
+        const LocalStorageService = {
+            
+            saveResult: function (liveUIDs, deadUIDs) {
+                const result = {
+                    id: Date.now(), // 唯一ID（时间戳）
+                    timestamp: new Date().toLocaleString(), // 检测时间
+                    liveCount: liveUIDs.length,
+                    deadCount: deadUIDs.length,
+                    liveUIDs: liveUIDs,
+                    deadUIDs: deadUIDs
+                };
+                
+                const existingResults = this.getResults() || [];
+               
+                const newResults = [result, ...existingResults].slice(0, 10);
+                localStorage.setItem('fbUidCheckResults', JSON.stringify(newResults));
+                return result;
+            },
+           
+            getResults: function () {
+                const results = localStorage.getItem('fbUidCheckResults');
+                return results ? JSON.parse(results) : null;
+            },
+           
+            clearResults: function () {
+                localStorage.removeItem('fbUidCheckResults');
+                return true;
+            },
+            
+            getResultById: function (id) {
+                const results = this.getResults() || [];
+                return results.find(item => item.id === Number(id)) || null;
+            },
+         
+            deleteResultById: function (id) {
+                const results = this.getResults() || [];
+                const newResults = results.filter(item => item.id !== Number(id));
+                localStorage.setItem('fbUidCheckResults', JSON.stringify(newResults));
+                return newResults;
+            }
+        };
+
+        
+        $(document).ready(function () {
+            const $inputContent = $('#inputContent');
+            const $checkBtn = $('#checkBtn');
+            const $clearBtn = $('#clearBtn');
+            const $progressContainer = $('#progressContainer');
+            const $dotProgress = $('#dotProgress');
+            const $progressDots = $dotProgress.find('.progress-dot');
+            const $progressPercent = $('#progressPercent');
+            const $processed = $('#processed');
+            const $total = $('#total');
+            const $liveUIDs = $('#liveUIDs');
+            const $deadUIDs = $('#deadUIDs');
+            const $liveCount = $('#liveCount');
+            const $deadCount = $('#deadCount');
+            const $copyLiveBtn = $('#copyLiveBtn');
+            const $copyDeadBtn = $('#copyDeadBtn');
+            const $resultTabs = $('.result-tab');
+            const $resultContents = $('.result-content');
+            const $savePrompt = $('#savePrompt');
+            const $confirmSaveBtn = $('#confirmSaveBtn');
+            const $cancelSaveBtn = $('#cancelSaveBtn');
+            const $historyList = $('#historyList');
+            const $noHistoryTip = $('#noHistoryTip');
+            const $historyDetail = $('#historyDetail');
+            const $historyDetailTabs = $('.history-detail-tab');
+            const $historyDetailContents = $('.history-detail-content');
+            const $historyLiveUIDs = $('#historyLiveUIDs');
+            const $historyDeadUIDs = $('#historyDeadUIDs');
+            const $copyHistoryLiveBtn = $('#copyHistoryLiveBtn');
+            const $copyHistoryDeadBtn = $('#copyHistoryDeadBtn');
+            const $refreshHistoryBtn = $('#refreshHistoryBtn');
+            const $clearAllHistoryBtn = $('#clearAllHistoryBtn');
+
+            
+            let currentDetectionResult = null;
+            
+            let currentHistoryId = null;
+
+          
+            $resultTabs.click(function () {
+                const target = $(this).data('target');
+                $resultTabs.removeClass('active');
+                $(this).addClass('active');
+                $resultContents.removeClass('active');
+                $(`#${target}`).addClass('active');
+            });
+
+           
+            $historyDetailTabs.click(function () {
+                const target = $(this).data('target');
+                $historyDetailTabs.removeClass('active');
+                $(this).addClass('active');
+                $historyDetailContents.removeClass('active');
+                $(`#${target}`).addClass('active');
+            });
+
+            
+            function updateDotProgress(progress) {
+                const dotCount = $progressDots.length;
+                const activeDots = Math.round((progress / 100) * dotCount);
+                $progressDots.removeClass('active');
+                for (let i = 0; i < activeDots; i++) {
+                    $progressDots.eq(i).addClass('active');
+                }
+            }
+
+           
+            function showSavePrompt(liveUIDs, deadUIDs) {
+                currentDetectionResult = { liveUIDs, deadUIDs };
+                $savePrompt.fadeIn(300);
+                
+                setTimeout(() => {
+                    $savePrompt.fadeOut(300);
+                }, 30000);
+            }
+
+            
+            function hideSavePrompt() {
+                $savePrompt.fadeOut(300);
+                currentDetectionResult = null;
+            }
+
+            
+            function renderHistoryList() {
+                const results = LocalStorageService.getResults() || [];
+                
+                $noHistoryTip.toggle(results.length === 0);
+              
+                $historyList.find('.history-item').remove();
+          
+                if (currentHistoryId && !results.some(item => item.id === Number(currentHistoryId))) {
+                    $historyDetail.hide().removeClass('active');
+                    currentHistoryId = null;
+                }
+              
+                results.forEach(result => {
+                    const $item = $(`
+                        <div class="history-item" data-id="${result.id}">
+                            <div class="history-item-content">
+                                <div class="history-item-header">
+                                    <span class="history-time">检测时间：${result.timestamp}</span>
+                                    <div class="history-counts">
+                                        <span class="history-live-count">存活：${result.liveCount}条</span>
+                                        <span class="history-dead-count">失效：${result.deadCount}条</span>
+                                    </div>
+                                </div>
+                                <div class="history-item-desc">点击查看该次检测详细结果</div>
+                            </div>
+                            <button class="delete-item-btn" data-id="${result.id}" title="删除该记录">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </div>
+                    `);
+                    $historyList.append($item);
+                });
+            }
+
+            
+            function renderHistoryDetail(resultId) {
+                const result = LocalStorageService.getResultById(resultId);
+                if (!result) return;
+                currentHistoryId = resultId;
+                
+                $historyDetail.show().addClass('active');
+             
+                $historyLiveUIDs.val(result.liveUIDs.join('\n') || '暂无数据');
+                $historyDeadUIDs.val(result.deadUIDs.join('\n') || '暂无数据');
+               
+                $historyDetailTabs.removeClass('active').eq(0).addClass('active');
+                $historyDetailContents.removeClass('active').eq(0).addClass('active');
+                
+                $historyList.find('.history-item').removeClass('active');
+                $historyList.find(`.history-item[data-id="${resultId}"]`).addClass('active');
+              
+                $historyDetail[0].scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+
+           
+            renderHistoryList();
+
+          
+            $checkBtn.click(async function () {
+                const raw = $inputContent.val().trim();
+                if (!raw) {
+                    alert('请输入内容后再进行检测！');
+                    return;
+                }
+                const uids = extract14DigitUIDs(raw);
+                if (uids.length === 0) {
+                    alert('未提取到任何14位连续数字，请检查输入内容！');
+                    return;
+                }
+
+                
+                let liveCount = 0;
+                let deadCount = 0;
+                let processedCount = 0;
+                const totalCount = uids.length;
+                const liveUIDList = [];
+                const deadUIDList = [];
+                
+                $liveUIDs.val('');
+                $deadUIDs.val('');
+                $liveCount.text(`存活数量：0`);
+                $deadCount.text(`失效数量：0`);
+                $progressContainer.show();
+                $total.text(totalCount);
+                $processed.text('0');
+                $progressPercent.text('0%');
+                updateDotProgress(0);
+                hideSavePrompt(); // 隐藏之前的保存提示
+
+                
+                const batchSize = 50;
+                for (let i = 0; i < uids.length; i += batchSize) {
+                    const batch = uids.slice(i, i + batchSize);
+                    const batchResults = await Promise.all(batch.map(async (uid) => {
+                        try {
+                            // 添加请求超时处理（10秒）
+                            const res = await Promise.race([
+                                fetch(`https://graph.facebook.com/${uid}/picture?redirect=false`),
+                                new Promise((_, reject) => setTimeout(() => reject(new Error('请求超时')), 10000))
+                            ]);
+                            const data = await res.json();
+                            return { uid, isLive: data.data && data.data.height };
+                        } catch (e) {
+                            console.log(`UID ${uid} 检测失败：`, e.message);
+                            return { uid, isLive: false };
+                        }
+                    }));
+
+                   
+                    batchResults.forEach(({ uid, isLive }) => {
+                        if (isLive) {
+                            liveCount++;
+                            liveUIDList.push(uid);
+                        } else {
+                            deadCount++;
+                            deadUIDList.push(uid);
+                        }
+                        processedCount++;
+                    });
+
+                    
+                    $liveUIDs.val(liveUIDList.join('\n'));
+                    $deadUIDs.val(deadUIDList.join('\n'));
+                    $liveCount.text(`存活数量：${liveCount}`);
+                    $deadCount.text(`失效数量：${deadCount}`);
+                    $processed.text(processedCount);
+                    
+                   
+                    const progress = Math.round((processedCount / totalCount) * 100);
+                    $progressPercent.text(`${progress}%`);
+                    updateDotProgress(progress);
+
+                    
+                    await new Promise(resolve => setTimeout(resolve, 300));
+                }
+
+               
+                showSavePrompt(liveUIDList, deadUIDList);
+
+                
+                setTimeout(() => {
+                    $progressContainer.hide();
+                }, 3000);
+            });
+
+           
+            $clearBtn.click(function () {
+                $inputContent.val('');
+                $liveUIDs.val('');
+                $deadUIDs.val('');
+                $liveCount.text(`存活数量：0`);
+                $deadCount.text(`失效数量：0`);
+                $progressContainer.hide();
+                $processed.text('0');
+                $progressPercent.text('0%');
+                updateDotProgress(0);
+                hideSavePrompt();
+              
+                $resultTabs.removeClass('active').eq(0).addClass('active');
+                $resultContents.removeClass('active').eq(0).addClass('active');
+            });
+
+          
+            $copyLiveBtn.click(function () {
+                const content = $liveUIDs.val().trim();
+                if (!content) {
+                    alert('无存活UID可复制！');
+                    return;
+                }
+                navigator.clipboard.writeText(content).then(() => {
+                    alert('复制成功！');
+                }).catch(err => {
+                    alert('复制失败，请手动复制！');
+                    console.error('复制失败：', err);
+                });
+            });
+
+            $copyDeadBtn.click(function () {
+                const content = $deadUIDs.val().trim();
+                if (!content) {
+                    alert('无失效UID可复制！');
+                    return;
+                }
+                navigator.clipboard.writeText(content).then(() => {
+                    alert('复制成功！');
+                }).catch(err => {
+                    alert('复制失败，请手动复制！');
+                    console.error('复制失败：', err);
+                });
+            });
+
+       
+            $copyHistoryLiveBtn.click(function () {
+                const content = $historyLiveUIDs.val().trim();
+                if (!content || content === '暂无数据') {
+                    alert('无历史存活UID可复制！');
+                    return;
+                }
+                navigator.clipboard.writeText(content).then(() => {
+                    alert('历史存活UID复制成功！');
+                }).catch(err => {
+                    alert('复制失败，请手动复制！');
+                    console.error('复制失败：', err);
+                });
+            });
+
+            $copyHistoryDeadBtn.click(function () {
+                const content = $historyDeadUIDs.val().trim();
+                if (!content || content === '暂无数据') {
+                    alert('无历史失效UID可复制！');
+                    return;
+                }
+                navigator.clipboard.writeText(content).then(() => {
+                    alert('历史失效UID复制成功！');
+                }).catch(err => {
+                    alert('复制失败，请手动复制！');
+                    console.error('复制失败：', err);
+                });
+            });
+
+          
+            $confirmSaveBtn.click(function () {
+                if (currentDetectionResult) {
+                    const { liveUIDs, deadUIDs } = currentDetectionResult;
+                    LocalStorageService.saveResult(liveUIDs, deadUIDs);
+                    alert('保存成功！结果已存储在本地浏览器中～');
+                    hideSavePrompt();
+                    // 保存后刷新历史记录列表
+                    renderHistoryList();
+                }
+            });
+
+         
+            $cancelSaveBtn.click(function () {
+                hideSavePrompt();
+            });
+
+           
+            $historyList.on('click', '.history-item-content', function (e) {
+             
+                e.stopPropagation();
+                const $item = $(this).closest('.history-item');
+                const resultId = $item.data('id');
+                renderHistoryDetail(resultId);
+            });
+
+            
+            $historyList.on('click', '.delete-item-btn', function (e) {
+               
+                e.stopPropagation();
+                const resultId = $(this).data('id');
+                if (confirm('确定要删除这条历史记录吗？此操作不可恢复！')) {
+                    LocalStorageService.deleteResultById(resultId);
+                 
+                    renderHistoryList();
+                    alert('该条历史记录已删除！');
+                }
+            });
+
+           
+            $refreshHistoryBtn.click(function () {
+                renderHistoryList();
+                alert('历史记录已刷新！');
+            });
+
+        
+            $clearAllHistoryBtn.click(function () {
+                if (confirm('确定要清空所有历史检测记录吗？此操作不可恢复！')) {
+                    LocalStorageService.clearResults();
+                    renderHistoryList();
+                    alert('所有历史记录已清空！');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
