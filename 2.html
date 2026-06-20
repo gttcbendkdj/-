@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="高级极简主义导航门户首页，提供购买、频道、客服等核心业务入口。" />
+  <meta name="keywords" content="高级导航站, 企业门户, Bento Grid, 极简主义, 业务入口" />
+  <meta name="author" content="Premium Navigation Portal" />
+  <title>Premium Navigation Portal</title>
+
+  <style>
+    :root {
+      --bg: #fbfbfb;
+      --surface: rgba(255, 255, 255, 0.82);
+      --surface-solid: #ffffff;
+      --text: #1a1a1a;
+      --text-soft: #5f635d;
+      --text-faint: #8c9188;
+      --line: #eaeaea;
+      --line-hover: #cad2c8;
+      --accent: #7d917f;
+      --accent-deep: #4f684f;
+      --accent-soft: #eef2ee;
+      --shadow: 0 16px 44px rgba(26, 26, 26, 0.055);
+      --shadow-hover: 0 22px 60px rgba(26, 26, 26, 0.095);
+      --radius: 8px;
+      --radius-small: 6px;
+      --container: 1184px;
+      --transition: 260ms cubic-bezier(.2, .8, .2, 1);
+    }
+
+    html[data-theme="dark"] {
+      --bg: #111211;
+      --surface: rgba(22, 23, 21, 0.82);
+      --surface-solid: #171917;
+      --text: #f4f4f1;
+      --text-soft: #c2c6be;
+      --text-faint: #8e948a;
+      --line: rgba(255, 255, 255, 0.105);
+      --line-hover: rgba(255, 255, 255, 0.22);
+      --accent: #9aaa95;
+      --accent-deep: #c1cec0;
+      --accent-soft: rgba(154, 170, 149, 0.12);
+      --shadow: 0 16px 44px rgba(0, 0, 0, 0.25);
+      --shadow-hover: 0 22px 60px rgba(0, 0, 0, 0.38);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: geometricPrecision;
+    }
+
+    body {
+      min-height: 100vh;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 18% 8%, rgba(125, 145, 127, .13), transparent 28%),
+        radial-gradient(circle at 82% 14%, rgba(186, 182, 171, .16), transparent 30%),
+        linear-gradient(180deg, var(--bg), var(--bg));
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "SF Pro Display", "PingFang SC",
+        "Microsoft YaHei", "Segoe UI", Arial, sans-serif;
+      letter-spacing: -0.012em;
+      overflow-x: hidden;
+      transition: background var(--transition), color var(--transition);
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: .032;
+      background-image:
+        linear-gradient(var(--text) 1px, transparent 1px),
+        linear-gradient(90deg, var(--text) 1px, transparent 1px);
+      background-size: 48px 48px;
+      mask-image: linear-gradient(to bottom, black 0%, transparent 72%);
+      z-index: -1;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      cursor: pointer;
+    }
+
+    .container {
+      width: min(calc(100% - 32px), var(--container));
+      margin-inline: auto;
+    }
+
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      border-bottom: 1px solid var(--line);
+      background: var(--surface);
+      backdrop-filter: blur(22px) saturate(160%);
+    }
+
+    .nav {
+      height: 72px;
+      display: grid;
+      grid-template-columns: 1fr minmax(280px, 424px) 1fr;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      width: fit-content;
+    }
+
+    .brand-mark {
+      width: 32px;
+      height: 32px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-small);
+      display: grid;
+      place-items: center;
+      background: linear-gradient(180deg, var(--surface-solid), var(--accent-soft));
+    }
+
+    .brand-mark svg {
+      width: 18px;
+      height: 18px;
+      stroke: var(--text);
+    }
+
+    .brand-name {
+      font-size: 14px;
+      font-weight: 650;
+      letter-spacing: .018em;
+      white-space: nowrap;
+    }
+
+    .search {
+      position: relative;
+    }
+
+    .search input {
+      width: 100%;
+      height: 42px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-small);
+      background: var(--surface);
+      color: var(--text);
+      outline: none;
+      padding: 0 92px 0 40px;
+      transition: border-color var(--transition), box-shadow var(--transition), background var(--transition);
+    }
+
+    .search input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px var(--accent-soft);
+    }
+
+    .search svg {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      width: 16px;
+      height: 16px;
+      transform: translateY(-50%);
+      stroke: var(--text-faint);
+    }
+
+    .shortcut {
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: inline-flex;
+      gap: 4px;
+      color: var(--text-faint);
+      font-size: 12px;
+    }
+
+    .shortcut span {
+      height: 24px;
+      min-width: 24px;
+      padding-inline: 6px;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      background: rgba(127, 127, 127, .04);
+    }
+
+    .actions {
+      justify-self: end;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .icon-button,
+    .theme-button {
+      height: 38px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-small);
+      color: var(--text);
+      background: var(--surface);
+      display: grid;
+      place-items: center;
+      transition: transform var(--transition), border-color var(--transition), box-shadow var(--transition);
+    }
+
+    .icon-button {
+      width: 38px;
+    }
+
+    .theme-button {
+      padding-inline: 12px;
+      color: var(--text-soft);
+      font-size: 13px;
+    }
+
+    .icon-button:hover,
+    .theme-button:hover {
+      transform: translateY(-1px);
+      border-color: var(--line-hover);
+      box-shadow: var(--shadow);
+    }
+
+    .icon-button svg {
+      width: 17px;
+      height: 17px;
+      stroke: currentColor;
+    }
+
+    .hero {
+      padding: 104px 0 72px;
+    }
+
+    .hero-inner {
+      display: grid;
+      grid-template-columns: 1.08fr .92fr;
+      gap: 56px;
+      align-items: end;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--text-soft);
+      font-size: 13px;
+      letter-spacing: .09em;
+      text-transform: uppercase;
+      margin-bottom: 28px;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 32px;
+      height: 1px;
+      background: var(--accent);
+    }
+
+    h1 {
+      max-width: 780px;
+      font-size: clamp(44px, 7vw, 92px);
+      line-height: .94;
+      letter-spacing: -0.075em;
+      font-weight: 680;
+    }
+
+    .hero-copy {
+      max-width: 560px;
+      margin-top: 30px;
+      color: var(--text-soft);
+      font-size: clamp(16px, 2vw, 19px);
+      line-height: 1.72;
+    }
+
+    .hero-actions {
+      margin-top: 36px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .btn {
+      height: 46px;
+      padding-inline: 18px;
+      border-radius: var(--radius-small);
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+      font-weight: 560;
+      transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition), background var(--transition);
+    }
+
+    .btn-primary {
+      color: var(--bg);
+      background: var(--text);
+    }
+
+    .btn-secondary {
+      color: var(--text);
+      background: var(--surface);
+      border: 1px solid var(--line);
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-hover);
+    }
+
+    .visual-panel {
+      min-height: 372px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background:
+        linear-gradient(135deg, rgba(125, 145, 127, .12), transparent 42%),
+        var(--surface);
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+      padding: 28px;
+    }
+
+    .visual-panel::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(125, 145, 127, .18) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(125, 145, 127, .18) 1px, transparent 1px);
+      background-size: 24px 24px;
+      opacity: .38;
+      mask-image: radial-gradient(circle at 52% 42%, black, transparent 72%);
+    }
+
+    .panel-card {
+      position: relative;
+      z-index: 1;
+      width: 72%;
+      margin-left: auto;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-small);
+      background: var(--surface);
+      padding: 18px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+    }
+
+    .panel-card + .panel-card {
+      width: 62%;
+      margin-top: 14px;
+      margin-left: 0;
+    }
+
+    .panel-line {
+      height: 8px;
+      border-radius: 999px;
+      background: var(--line);
+      margin-bottom: 12px;
+    }
+
+    .panel-line.short {
+      width: 54%;
+    }
+
+    .panel-meta {
+      margin-top: 18px;
+      display: flex;
+      justify-content: space-between;
+      color: var(--text-faint);
+      font-size: 12px;
+    }
+
+    .section {
+      padding: 64px 0;
+    }
+
+    .section-head {
+      margin-bottom: 28px;
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 32px;
+    }
+
+    .section-title {
+      font-size: clamp(28px, 4vw, 44px);
+      line-height: 1.08;
+      letter-spacing: -0.055em;
+      font-weight: 650;
+    }
+
+    .section-desc {
+      max-width: 440px;
+      color: var(--text-soft);
+      font-size: 15px;
+      line-height: 1.7;
+    }
+
+    .bento {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 16px;
+    }
+
+    .bento-card {
+      min-height: 220px;
+      grid-column: span 4;
+      position: relative;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+      padding: 24px;
+      transition: transform var(--transition), border-color var(--transition), box-shadow var(--transition), opacity var(--transition);
+    }
+
+    .bento-card.large {
+      grid-column: span 7;
+      min-height: 320px;
+    }
+
+    .bento-card.medium {
+      grid-column: span 5;
+      min-height: 320px;
+    }
+
+    .bento-card:hover,
+    .bento-card.is-active {
+      transform: translateY(-4px);
+      border-color: var(--accent);
+      box-shadow: var(--shadow-hover);
+    }
+
+    .card-label {
+      margin-bottom: 18px;
+      color: var(--text-faint);
+      font-size: 12px;
+      letter-spacing: .09em;
+      text-transform: uppercase;
+    }
+
+    .bento-card h3 {
+      margin-bottom: 10px;
+      font-size: 24px;
+      letter-spacing: -0.035em;
+      font-weight: 650;
+    }
+
+    .bento-card p {
+      max-width: 420px;
+      color: var(--text-soft);
+      font-size: 15px;
+      line-height: 1.68;
+    }
+
+    .card-link {
+      position: absolute;
+      left: 24px;
+      bottom: 24px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--accent-deep);
+      font-size: 14px;
+      font-weight: 580;
+    }
+
+    .card-link svg {
+      width: 15px;
+      height: 15px;
+      stroke: currentColor;
+      transition: transform var(--transition);
+    }
+
+    .bento-card:hover .card-link svg {
+      transform: translateX(3px);
+    }
+
+    .footer {
+      margin-top: 64px;
+      padding: 40px 0 56px;
+      border-top: 1px solid var(--line);
+      display: grid;
+      grid-template-columns: 1.25fr repeat(3, .58fr);
+      gap: 32px;
+      color: var(--text-soft);
+    }
+
+    .footer h2,
+    .footer h3 {
+      color: var(--text);
+      margin-bottom: 12px;
+      letter-spacing: -0.02em;
+      font-size: 15px;
+    }
+
+    .footer p,
+    .footer a {
+      display: block;
+      color: var(--text-soft);
+      font-size: 14px;
+      line-height: 1.9;
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(16px);
+      animation: reveal .72s cubic-bezier(.2, .8, .2, 1) forwards;
+    }
+
+    .delay-1 {
+      animation-delay: .08s;
+    }
+
+    .delay-2 {
+      animation-delay: .16s;
+    }
+
+    .delay-3 {
+      animation-delay: .24s;
+    }
+
+    @keyframes reveal {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 980px) {
+      .nav {
+        grid-template-columns: 1fr auto;
+      }
+
+      .search {
+        display: none;
+      }
+
+      .hero-inner,
+      .footer {
+        grid-template-columns: 1fr;
+      }
+
+      .hero {
+        padding-top: 76px;
+      }
+
+      .visual-panel {
+        min-height: 300px;
+      }
+
+      .bento-card,
+      .bento-card.large,
+      .bento-card.medium {
+        grid-column: span 12;
+      }
+    }
+
+    @media (max-width: 620px) {
+      .container {
+        width: min(calc(100% - 24px), var(--container));
+      }
+
+      .nav {
+        height: 64px;
+      }
+
+      .brand-name {
+        display: none;
+      }
+
+      .theme-button {
+        width: 38px;
+        padding: 0;
+        font-size: 0;
+      }
+
+      h1 {
+        font-size: clamp(42px, 13vw, 62px);
+      }
+
+      .hero {
+        padding: 56px 0 48px;
+      }
+
+      .section {
+        padding: 44px 0;
+      }
+
+      .section-head {
+        display: block;
+      }
+
+      .section-desc {
+        margin-top: 12px;
+      }
+
+      .panel-card,
+      .panel-card + .panel-card {
+        width: 100%;
+      }
+
+      .footer {
+        margin-top: 32px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header class="site-header">
+    <nav class="nav container" aria-label="全局导航">
+      <a class="brand" href="#top" aria-label="返回首页">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.7">
+            <path d="M4 7.5L12 3l8 4.5v9L12 21l-8-4.5v-9z"></path>
+            <path d="M8 10.5L12 13l4-2.5"></path>
+          </svg>
+        </span>
+        <span class="brand-name">小豆</span>
+      </a>
+
+      <div class="search" role="search">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.7" aria-hidden="true">
+          <circle cx="11" cy="11" r="7"></circle>
+          <path d="M16.5 16.5L21 21"></path>
+        </svg>
+        <input id="globalSearch" type="search" placeholder="搜索购买、频道、客服" aria-label="全局搜索" />
+        <span class="shortcut" aria-hidden="true">
+          <span>Ctrl</span><span>K</span>
+        </span>
+      </div>
+
+      <div class="actions">
+        <button class="theme-button" id="themeButton" type="button">深色模式</button>
+        <a class="icon-button" href="https://example.com/buy" aria-label="购物车">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.7">
+            <path d="M6 8h15l-2 9H8L6 4H3"></path>
+            <circle cx="9" cy="20" r="1"></circle>
+            <circle cx="18" cy="20" r="1"></circle>
+          </svg>
+        </a>
+        <a class="icon-button" href="https://example.com/support" aria-label="个人中心">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.7">
+            <path d="M20 21a8 8 0 0 0-16 0"></path>
+            <circle cx="12" cy="8" r="4"></circle>
+          </svg>
+        </a>
+      </div>
+    </nav>
+  </header>
+
+  <main id="top">
+    <section class="hero container">
+      <div class="hero-inner">
+        <div class="reveal">
+          <div class="eyebrow">Navigation System</div>
+          <h1>小豆脸书,全网低价</h1>
+          <p class="hero-copy">
+            一个面向企业级业务场景的高级导航门户。以严谨网格、克制配色和稳定交互组织购买、频道与客服入口，
+            在第一屏建立清晰、可信、专业的访问路径。
+          </p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="https://example.com/buy">进入购买</a>
+            <a class="btn btn-secondary" href="#channels">浏览频道</a>
+          </div>
+        </div>
+
+        <aside class="visual-panel reveal delay-1" aria-label="抽象门户视觉面板">
+          <div class="panel-card">
+            <div class="panel-line"></div>
+            <div class="panel-line short"></div>
+            <div class="panel-meta">
+              <span>Purchase</span>
+              <span>Primary</span>
+            </div>
+          </div>
+          <div class="panel-card">
+            <div class="panel-line"></div>
+            <div class="panel-line short"></div>
+            <div class="panel-meta">
+              <span>Channel</span>
+              <span>Active</span>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="section container" id="channels">
+      <div class="section-head reveal">
+        <h2 class="section-title">频道枢纽</h2>
+        <p class="section-desc">
+          采用非对称 Bento Box 布局，以业务优先级组织入口，在秩序与视觉变化之间保持平衡。
+        </p>
+      </div>
+
+      <div class="bento">
+        <a class="bento-card large reveal delay-1" href="https://example.com/buy" data-search="购买 purchase buy 商品 套餐 支付">
+          <div class="card-label">Primary Entry</div>
+          <h3>购买 Purchase</h3>
+          <p>承载产品、服务、套餐与支付流程，适合放置最核心的转化路径。</p>
+          <span class="card-link">
+            进入购买
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.7">
+              <path d="M5 12h14"></path>
+              <path d="M13 6l6 6-6 6"></path>
+            </svg>
+          </span>
+        </a>
+
+        <a class="bento-card medium reveal delay-2" href="https://example.com/channel" data-search="频道 channel 内容 资源 社群 资讯">
+          <div class="card-label">Content Hub</div>
+          <h3>频道 Channel</h3>
+          <p>聚合内容频道、资源专区、活动资讯与会员栏目，让用户快速抵达目标内容。</p>
+          <span class="card-link">
+            查看频道
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.7">
+              <path d="M5 12h14"></path>
+              <path d="M13 6l6 6-6 6"></path>
+            </svg>
+          </span>
+        </a>
+
+        <a class="bento-card reveal delay-1" href="https://example.com/support" data-search="客服 support 帮助 售后 联系">
+          <div class="card-label">Support Desk</div>
+          <h3>客服 Support</h3>
+          <p>连接帮助中心、售后支持、问题反馈与人工服务入口。</p>
+          <span class="card-link">
+            联系客服
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.7">
+              <path d="M5 12h14"></path>
+              <path d="M13 6l6 6-6 6"></path>
+            </svg>
+          </span>
+        </a>
+
+        <a class="bento-card reveal delay-2" href="#footer" data-search="关于 about 品牌 信息">
+          <div class="card-label">Brand Info</div>
+          <h3>品牌信息</h3>
+          <p>用于承载企业介绍、政策说明、版权信息和其他辅助链接。</p>
+          <span class="card-link">
+            查看信息
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.7">
+              <path d="M5 12h14"></path>
+              <path d="M13 6l6 6-6 6"></path>
+            </svg>
+          </span>
+        </a>
+
+        <a class="bento-card reveal delay-3" href="#top" data-search="首页 home 返回 顶部">
+          <div class="card-label">Quick Return</div>
+          <h3>回到首页</h3>
+          <p>提供稳定的页面回流路径，适合长页面导航与移动端访问场景。</p>
+          <span class="card-link">
+            返回顶部
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.7">
+              <path d="M5 12h14"></path>
+              <path d="M13 6l6 6-6 6"></path>
+            </svg>
+          </span>
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer container" id="footer">
+    <section>
+      <h2>小豆</h2>
+      <p>高级极简主义导航门户模板，以留白、秩序、克制对比和细腻交互建立专业可信的品牌入口。</p>
+    </section>
+    <section>
+      <h3>核心入口</h3>
+      <a href="https://example.com/buy">购买</a>
+      <a href="https://example.com/channel">频道</a>
+      <a href="https://example.com/support">客服</a>
+    </section>
+    <section>
+      <h3>页面导航</h3>
+      <a href="#top">首页</a>
+      <a href="#channels">频道枢纽</a>
+      <a href="#footer">底部信息</a>
+    </section>
+    <section>
+      <h3>系统信息</h3>
+      <p>Copyright © <span id="year"></span></p>
+      <p>All rights reserved.</p>
+    </section>
+  </footer>
+
+  <script>
+    "use strict";
+
+    const LINKS = {
+      purchase: "https://example.com/buy",
+      channel: "https://example.com/channel",
+      support: "https://example.com/support"
+    };
+
+    const root = document.documentElement;
+    const themeButton = document.getElementById("themeButton");
+    const searchInput = document.getElementById("globalSearch");
+    const cards = Array.from(document.querySelectorAll("[data-search]"));
+
+    function setTheme(theme) {
+      root.dataset.theme = theme;
+      localStorage.setItem("premium-portal-theme", theme);
+      themeButton.textContent = theme === "dark" ? "浅色模式" : "深色模式";
+    }
+
+    function initTheme() {
+      const saved = localStorage.getItem("premium-portal-theme");
+      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      setTheme(saved || (prefersDark ? "dark" : "light"));
+    }
+
+    function handleSearch() {
+      const keyword = searchInput.value.trim().toLowerCase();
+
+      cards.forEach((card) => {
+        const matched = !keyword || card.dataset.search.toLowerCase().includes(keyword);
+        card.style.opacity = matched ? "1" : ".34";
+        card.classList.toggle("is-active", Boolean(keyword && matched));
+      });
+    }
+
+    function handleKeyboard(event) {
+      const key = event.key.toLowerCase();
+
+      if ((event.ctrlKey || event.metaKey) && key === "k") {
+        event.preventDefault();
+        searchInput.focus();
+      }
+
+      if (event.altKey && key === "1") {
+        window.location.href = LINKS.purchase;
+      }
+
+      if (event.altKey && key === "2") {
+        window.location.href = LINKS.channel;
+      }
+
+      if (event.altKey && key === "3") {
+        window.location.href = LINKS.support;
+      }
+
+      if (event.key === "Escape") {
+        searchInput.blur();
+        searchInput.value = "";
+        handleSearch();
+      }
+    }
+
+    function init() {
+      document.getElementById("year").textContent = new Date().getFullYear();
+
+      initTheme();
+
+      themeButton.addEventListener("click", () => {
+        setTheme(root.dataset.theme === "dark" ? "light" : "dark");
+      });
+
+      searchInput.addEventListener("input", handleSearch);
+      document.addEventListener("keydown", handleKeyboard);
+    }
+
+    document.addEventListener("DOMContentLoaded", init);
+  </script>
+</body>
+</html>
