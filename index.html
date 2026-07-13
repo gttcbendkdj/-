@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="企业业务入口控制台 · 暗色精品数字门户，整合购买、频道与客服三大业务模块。" />
-  <meta name="keywords" content="业务入口,控制台,购买,频道,客服,数字门户" />
+  <meta name="description" content="企业业务入口控制台 · 暗色精品数字门户，整合购买、频道、客服与工具箱四大业务模块。" />
+  <meta name="keywords" content="业务入口,控制台,购买,频道,客服,工具箱,数字门户" />
   <meta name="author" content="小豆" />
   <meta name="theme-color" content="#11100E" media="(prefers-color-scheme: dark)" />
   <meta name="theme-color" content="#F4EFE7" media="(prefers-color-scheme: light)" />
@@ -410,8 +410,8 @@
        ============================================================ */
     .cards {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 22px;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
       margin: 88px 0 120px;
       perspective: 1200px;
     }
@@ -438,6 +438,7 @@
     .card:nth-child(1) { animation: fadeUp 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.5s forwards; }
     .card:nth-child(2) { animation: fadeUp 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.62s forwards; }
     .card:nth-child(3) { animation: fadeUp 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.74s forwards; }
+    .card:nth-child(4) { animation: fadeUp 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.86s forwards; }
 
     /* 鼠标跟随光斑层 */
     .card-glow {
@@ -815,7 +816,7 @@
       </span>
       <h1 class="hero-title">小豆脸书，<em>全网低价</em></h1>
       <p class="hero-sub">
-        企业业务的数字门户。将购买、频道与客服整合于一处，以克制的视觉与精准的交互，让每一次进入都沉稳而高效。
+        企业业务的数字门户。将购买、频道、客服与工具箱整合于一处，以克制的视觉与精准的交互，让每一次进入都沉稳而高效。
       </p>
 
       <!-- 搜索 -->
@@ -829,18 +830,18 @@
             type="text"
             class="search-input"
             id="searchInput"
-            placeholder="搜索业务模块 · 购买 / 频道 / 客服"
+            placeholder="搜索业务模块 · 购买 / 频道 / 客服 / 工具箱"
             autocomplete="off"
             aria-label="搜索业务模块"
           />
         </div>
         <p class="search-hint">
-          快捷键 <kbd>Alt</kbd> + <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd> 直接进入对应模块
+          快捷键 <kbd>Alt</kbd> + <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd> <kbd>4</kbd> 直接进入对应模块
         </p>
       </div>
     </section>
 
-    <!-- 三大导航卡片 -->
+    <!-- 四大导航卡片 -->
     <section class="cards" id="cards" aria-label="业务导航卡片"></section>
   </main>
 
@@ -887,6 +888,7 @@
         purchase: 'https://example.com/buy',
         channel: 'https://example.com/channel',
         support: 'https://example.com/support',
+        tools: 'https://777640.xyz/tools',
       },
       cards: [
         {
@@ -916,6 +918,15 @@
           url: 'https://t.me/xdbbnb',
           icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg>',
         },
+        {
+          key: 'tools',
+          num: '04',
+          title: '工具箱',
+          subtitle: 'Tools',
+          desc: '进入实用工具集合，一站式提升日常运营与办公效率。',
+          url: 'https://777640.xyz/tools',
+          icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>',
+        },
       ],
     };
 
@@ -927,15 +938,17 @@
       // 是否启用 3D 倾斜（触摸设备 / 小屏禁用）
       const tiltEnabled = window.matchMedia('(hover: hover) and (min-width: 768px)').matches;
       const MAX_TILT = 6; // 最大倾斜角度（度）
+      const TOTAL = CONFIG.cards.length;
 
       function render() {
+        const totalStr = String(TOTAL).padStart(2, '0');
         container.innerHTML = CONFIG.cards.map((c) => `
           <article class="card" data-key="${c.key}" data-url="${c.url}" tabindex="0" role="link" aria-label="进入${c.title}模块">
             <div class="card-glow" aria-hidden="true"></div>
             <div class="card-inner">
               <div class="card-head">
                 <div class="card-icon" aria-hidden="true">${c.icon}</div>
-                <span class="card-num">${c.num} / 03</span>
+                <span class="card-num">${c.num} / ${totalStr}</span>
               </div>
               <h2 class="card-title">${c.title}</h2>
               <p class="card-subtitle">${c.subtitle}</p>
@@ -1114,16 +1127,18 @@
     })();
 
     /* ------------------------------------------------------------
-       快捷键：Alt + 1 / 2 / 3
+       快捷键：Alt + 1 / 2 / 3 / 4
        ------------------------------------------------------------ */
     const ShortcutModule = (function () {
+      const KEYS = ['1', '2', '3', '4'];
+
       function init() {
         document.addEventListener('keydown', handleKey);
       }
 
       function handleKey(e) {
         if (!e.altKey) return;
-        const idx = ['1', '2', '3'].indexOf(e.key);
+        const idx = KEYS.indexOf(e.key);
         if (idx === -1) return;
 
         e.preventDefault();
