@@ -1,1230 +1,1134 @@
 <!DOCTYPE html>
-<html lang="zh-CN" data-theme="dark">
+<html lang="zh-CN">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="2FA 验证码生成器 · 暗色精品控制台风格，输入 TOTP 密钥自动生成 6 位动态验证码。" />
-  <meta name="keywords" content="2FA,TOTP,验证码,双因素认证,动态密码" />
-  <meta name="theme-color" content="#11100E" media="(prefers-color-scheme: dark)" />
-  <meta name="theme-color" content="#F4EFE7" media="(prefers-color-scheme: light)" />
-  <title>2FA 验证码 · 小豆工具箱</title>
 
-  <style>
-    /* ============================================================
-       设计系统：暗色精品控制台（与 index 一致）
-       默认暗色 — 深炭底 + 暖白文字 + 暖铜色点缀 + 鼠尾草绿辅助
-       浅色  — 暖米白底 + 深炭文字 + 同色系点缀
-       ============================================================ */
-    :root,
-    [data-theme="dark"] {
-      --bg: #11100E;
-      --bg-soft: #16140F;
-      --card: #1A1815;
-      --card-2: rgba(255, 255, 255, 0.04);
-      --card-border: rgba(255, 255, 255, 0.08);
-      --card-border-strong: rgba(196, 154, 99, 0.35);
-      --text: #F4EFE7;
-      --text-soft: #A8A096;
-      --text-muted: #6E6A62;
-      --accent: #C49A63;
-      --accent-soft: rgba(196, 154, 99, 0.12);
-      --accent-glow: rgba(196, 154, 99, 0.18);
-      --highlight: #7E8F78;
-      --highlight-soft: rgba(126, 143, 120, 0.14);
-      --highlight-glow: rgba(126, 143, 120, 0.22);
-      --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
-      --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.35), 0 16px 40px rgba(0, 0, 0, 0.45);
-      --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.45), 0 32px 80px rgba(0, 0, 0, 0.55);
-      --glass: rgba(26, 24, 21, 0.72);
-      --glass-border: rgba(255, 255, 255, 0.06);
-      --input-bg: rgba(255, 255, 255, 0.03);
-      --input-border: rgba(255, 255, 255, 0.10);
-      --header-bg: rgba(17, 16, 14, 0.72);
-      --kbd-bg: rgba(255, 255, 255, 0.05);
-      --ripple: rgba(196, 154, 99, 0.30);
-      --progress: linear-gradient(90deg, #C49A63 0%, #7E8F78 100%);
-      --grain-opacity: 0.04;
-      --blob-a: rgba(196, 154, 99, 0.10);
-      --blob-b: rgba(126, 143, 120, 0.08);
-      --danger: #C97A6B;
-      --warn: #D4A85E;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    [data-theme="light"] {
-      --bg: #F4EFE7;
-      --bg-soft: #EDE6DA;
-      --card: #FFFFFF;
-      --card-2: rgba(31, 29, 26, 0.03);
-      --card-border: rgba(31, 29, 26, 0.10);
-      --card-border-strong: rgba(168, 124, 60, 0.40);
-      --text: #1A1815;
-      --text-soft: #5C574F;
-      --text-muted: #9A9389;
-      --accent: #A87C3E;
-      --accent-soft: rgba(168, 124, 60, 0.10);
-      --accent-glow: rgba(168, 124, 60, 0.16);
-      --highlight: #5E7058;
-      --highlight-soft: rgba(94, 112, 88, 0.12);
-      --highlight-glow: rgba(94, 112, 88, 0.20);
-      --shadow-sm: 0 1px 2px rgba(31, 29, 26, 0.05);
-      --shadow-md: 0 4px 12px rgba(31, 29, 26, 0.06), 0 16px 40px rgba(31, 29, 26, 0.08);
-      --shadow-lg: 0 8px 24px rgba(31, 29, 26, 0.08), 0 32px 80px rgba(31, 29, 26, 0.12);
-      --glass: rgba(255, 255, 255, 0.72);
-      --glass-border: rgba(255, 255, 255, 0.6);
-      --input-bg: rgba(255, 255, 255, 0.6);
-      --input-border: rgba(31, 29, 26, 0.12);
-      --header-bg: rgba(244, 239, 231, 0.78);
-      --kbd-bg: rgba(31, 29, 26, 0.04);
-      --ripple: rgba(168, 124, 60, 0.28);
-      --progress: linear-gradient(90deg, #A87C3E 0%, #5E7058 100%);
-      --grain-opacity: 0.025;
-      --blob-a: rgba(168, 124, 60, 0.10);
-      --blob-b: rgba(94, 112, 88, 0.08);
-      --danger: #B5564A;
-      --warn: #A87C3E;
-    }
+<title>2FA 验证码生成器</title>
 
-    /* ============================================================
-       基础重置
-       ============================================================ */
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+<script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
 
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display",
-        "SF Pro Text", "Segoe UI", "PingFang SC", "Hiragino Sans GB",
-        "Microsoft YaHei", sans-serif;
-      background-color: var(--bg);
-      color: var(--text);
-      line-height: 1.6;
-      min-height: 100vh;
-      overflow-x: hidden;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-      transition: background-color 0.4s ease, color 0.4s ease;
-      font-feature-settings: "ss01", "cv01", "tnum";
-    }
 
-    a { color: inherit; text-decoration: none; }
-    button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
-    ::selection { background: var(--accent); color: #fff; }
+<style>
 
-    /* ============================================================
-       背景层：极淡光斑 + 颗粒纹理
-       ============================================================ */
-    .bg-layer {
-      position: fixed;
-      inset: 0;
-      z-index: 0;
-      pointer-events: none;
-      overflow: hidden;
-    }
-    .blob {
-      position: absolute;
-      border-radius: 50%;
-      filter: blur(100px);
-      transition: background 0.4s ease;
-    }
-    .blob-a {
-      width: 620px; height: 620px;
-      top: -200px; right: -160px;
-      background: var(--blob-a);
-    }
-    .blob-b {
-      width: 520px; height: 520px;
-      bottom: -180px; left: -140px;
-      background: var(--blob-b);
-    }
-    .grain {
-      position: absolute;
-      inset: 0;
-      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.5 0'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.5'/></svg>");
-      opacity: var(--grain-opacity);
-      mix-blend-mode: overlay;
-    }
+:root {
 
-    /* ============================================================
-       顶部加载进度条
-       ============================================================ */
-    .progress {
-      position: fixed;
-      top: 0; left: 0;
-      height: 2px;
-      width: 0;
-      background: var(--progress);
-      z-index: 1000;
-      opacity: 0;
-      transition: opacity 0.3s ease;
-    }
-    .progress.active { opacity: 1; }
+    --main:#d34d7d;
+    --light:#fde7ef;
+    --border:#f2d8e3;
+    --bg:#fff8fa;
 
-    /* ============================================================
-       Header
-       ============================================================ */
-    .header {
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 16px 56px;
-      background: var(--header-bg);
-      backdrop-filter: saturate(180%) blur(20px);
-      -webkit-backdrop-filter: saturate(180%) blur(20px);
-      border-bottom: 1px solid transparent;
-      transition: border-color 0.3s ease, background 0.4s ease;
-    }
-    .header.scrolled { border-bottom-color: var(--card-border); }
+}
 
-    .header-left {
-      display: flex;
-      align-items: center;
-      gap: 40px;
-    }
 
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 11px;
-    }
-    .brand-mark {
-      width: 30px; height: 30px;
-      display: grid;
-      place-items: center;
-      border-radius: 9px;
-      background: linear-gradient(135deg, var(--accent), var(--highlight));
-      color: var(--bg);
-      transition: transform 0.3s ease;
-    }
-    .brand:hover .brand-mark { transform: rotate(-6deg); }
-    .brand-mark svg { width: 16px; height: 16px; }
 
-    .brand-name {
-      font-size: 15px;
-      font-weight: 580;
-      letter-spacing: -0.01em;
-      color: var(--text);
-    }
-    .brand-name span { color: var(--text-muted); font-weight: 400; margin: 0 2px; }
+* {
 
-    .nav-links {
-      display: flex;
-      align-items: center;
-      gap: 28px;
-    }
-    .nav-link {
-      font-size: 13px;
-      color: var(--text-soft);
-      letter-spacing: 0.01em;
-      transition: color 0.3s ease;
-      position: relative;
-    }
-    .nav-link:hover { color: var(--text); }
-    .nav-link.active { color: var(--text); }
-    .nav-link.active::after {
-      content: "";
-      position: absolute;
-      bottom: -22px;
-      left: 0; right: 0;
-      height: 2px;
-      background: var(--accent);
-      border-radius: 2px;
-    }
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
 
-    .header-tools {
-      display: flex;
-      align-items: center;
-      gap: 18px;
-    }
+    -webkit-tap-highlight-color:transparent;
 
-    .clock {
-      font-size: 12.5px;
-      font-variant-numeric: tabular-nums;
-      color: var(--text-soft);
-      letter-spacing: 0.02em;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .clock-date { color: var(--text-muted); }
-    .clock-sep {
-      width: 3px; height: 3px;
-      border-radius: 50%;
-      background: var(--text-muted);
-      opacity: 0.6;
-    }
+    font-family:
 
-    .theme-toggle {
-      width: 36px; height: 36px;
-      display: grid;
-      place-items: center;
-      border-radius: 10px;
-      border: 1px solid var(--card-border);
-      background: var(--card-2);
-      color: var(--text-soft);
-      transition: all 0.3s ease;
-    }
-    .theme-toggle:hover {
-      color: var(--accent);
-      border-color: var(--accent);
-      transform: translateY(-1px);
-    }
-    .theme-toggle svg { width: 17px; height: 17px; }
-    .theme-toggle .icon-moon { display: none; }
-    .theme-toggle .icon-sun { display: block; }
-    [data-theme="dark"] .theme-toggle .icon-moon { display: block; }
-    [data-theme="dark"] .theme-toggle .icon-sun { display: none; }
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    "PingFang SC",
+    "Microsoft YaHei",
+    sans-serif;
 
-    /* ============================================================
-       Main
-       ============================================================ */
-    .main {
-      position: relative;
-      z-index: 1;
-      max-width: 1180px;
-      margin: 0 auto;
-      padding: 0 56px;
-    }
+}
 
-    /* Hero */
-    .hero {
-      padding: 112px 0 32px;
-      opacity: 0;
-      transform: translateY(20px);
-      animation: fadeUp 1s cubic-bezier(0.16, 1, 0.3, 1) 0.15s forwards;
-      text-align: center;
-    }
 
-    .hero-eyebrow {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      padding: 6px 14px;
-      border-radius: 999px;
-      border: 1px solid var(--card-border);
-      background: var(--card-2);
-      font-size: 11.5px;
-      font-weight: 500;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--text-soft);
-      margin-bottom: 32px;
-    }
-    .hero-eyebrow .dot {
-      width: 6px; height: 6px;
-      border-radius: 50%;
-      background: var(--highlight);
-      box-shadow: 0 0 0 3px var(--highlight-soft);
-    }
 
-    .hero-title {
-      font-size: clamp(40px, 6.4vw, 72px);
-      font-weight: 600;
-      letter-spacing: -0.035em;
-      line-height: 1.05;
-      color: var(--text);
-      margin-bottom: 24px;
-    }
-    .hero-title em {
-      font-style: italic;
-      font-weight: 400;
-      background: linear-gradient(120deg, var(--accent), var(--highlight));
-      -webkit-background-clip: text;
-      background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
+body {
 
-    .hero-sub {
-      font-size: 17px;
-      line-height: 1.65;
-      color: var(--text-soft);
-      max-width: 48ch;
-      margin: 0 auto 56px;
-    }
+    min-height:100vh;
 
-    /* ============================================================
-       2FA 卡片 — 复用 index 卡片视觉语言
-       ============================================================ */
-    .tool-wrap {
-      max-width: 480px;
-      margin: 0 auto 120px;
-      opacity: 0;
-      transform: translateY(24px);
-      animation: fadeUp 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.4s forwards;
-    }
+    background:
 
-    .tool-card {
-      position: relative;
-      padding: 40px 36px 32px;
-      background: var(--card);
-      border: 1px solid var(--card-border);
-      border-radius: 22px;
-      box-shadow: var(--shadow-md);
-      overflow: hidden;
-      isolation: isolate;
-    }
+    linear-gradient(
+        rgba(255,248,250,.94),
+        rgba(255,248,250,.94)
+    ),
 
-    /* 顶部高光线 */
-    .tool-card::before {
-      content: "";
-      position: absolute;
-      top: 0; left: 24px; right: 24px;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, var(--accent), transparent);
-      opacity: 0.5;
-      z-index: 2;
-    }
+    radial-gradient(
+        circle at top right,
+        #ffd5e5,
+        transparent 40%
+    );
 
-    /* 卡片头部图标 */
-    .tool-head {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
-      margin-bottom: 8px;
-    }
-    .tool-icon {
-      width: 50px; height: 50px;
-      display: grid;
-      place-items: center;
-      border-radius: 13px;
-      background: var(--accent-soft);
-      color: var(--accent);
-      border: 1px solid var(--card-border);
-    }
-    .tool-icon svg { width: 23px; height: 23px; }
+    color:#33252b;
 
-    .tool-title {
-      font-size: 24px;
-      font-weight: 600;
-      letter-spacing: -0.02em;
-      color: var(--text);
-      text-align: center;
-    }
-    .tool-subtitle {
-      font-size: 12px;
-      font-weight: 500;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--accent);
-      text-align: center;
-      margin-top: 4px;
-      font-family: "SF Mono", "JetBrains Mono", "Menlo", monospace;
-    }
-    .tool-desc {
-      font-size: 13.5px;
-      line-height: 1.65;
-      color: var(--text-soft);
-      text-align: center;
-      margin-top: 10px;
-      margin-bottom: 32px;
-    }
+    overflow-x:hidden;
 
-    /* 输入区 */
-    .field { margin-bottom: 24px; }
-    .label {
-      display: block;
-      font-size: 11.5px;
-      font-weight: 500;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--text-muted);
-      margin-bottom: 10px;
-      font-family: "SF Mono", "JetBrains Mono", "Menlo", monospace;
-    }
-    .input-wrap {
-      position: relative;
-      display: flex;
-      align-items: center;
-    }
-    .input-wrap svg.input-leading {
-      position: absolute;
-      left: 16px;
-      width: 17px; height: 17px;
-      color: var(--text-muted);
-      pointer-events: none;
-      transition: color 0.3s ease;
-    }
-    .input {
-      flex: 1;
-      width: 100%;
-      height: 52px;
-      padding: 0 46px 0 46px;
-      font-family: "SF Mono", "JetBrains Mono", "Menlo", monospace;
-      font-size: 14.5px;
-      color: var(--text);
-      background: var(--input-bg);
-      border: 1px solid var(--input-border);
-      border-radius: 13px;
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      outline: none;
-      transition: all 0.3s ease;
-    }
-    .input::placeholder { color: var(--text-muted); }
-    .input:focus {
-      border-color: var(--accent);
-      background: var(--card-2);
-      box-shadow: 0 0 0 4px var(--accent-soft);
-    }
-    .input-wrap:focus-within svg.input-leading { color: var(--accent); }
+    padding:40px 20px;
 
-    .clear-btn {
-      position: absolute;
-      right: 10px;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 28px; height: 28px;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      border-radius: 8px;
-      color: var(--text-muted);
-      transition: all 0.2s ease;
-    }
-    .clear-btn:hover {
-      color: var(--text);
-      background: var(--card-2);
-    }
-    .clear-btn.show { display: flex; }
-    .clear-btn svg { width: 15px; height: 15px; }
+}
 
-    /* 验证码展示区 */
-    .code-area {
-      position: relative;
-      padding: 28px 24px;
-      background: var(--card-2);
-      border: 1px solid var(--card-border);
-      border-radius: 16px;
-      text-align: center;
-      overflow: hidden;
-    }
-    /* 倒计时进度环背景 */
-    .code-area::after {
-      content: "";
-      position: absolute;
-      left: 0; bottom: 0;
-      height: 3px;
-      width: var(--ring, 0%);
-      background: var(--progress);
-      border-radius: 0 3px 3px 0;
-      transition: width 1s linear;
-      opacity: 0.8;
-    }
 
-    .code-label {
-      font-size: 11.5px;
-      font-weight: 500;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--text-muted);
-      margin-bottom: 14px;
-      font-family: "SF Mono", "JetBrains Mono", "Menlo", monospace;
-    }
 
-    .code {
-      font-family: "SF Mono", "JetBrains Mono", "Menlo", monospace;
-      font-size: 48px;
-      font-weight: 700;
-      letter-spacing: 0.12em;
-      color: var(--text);
-      line-height: 1.1;
-      font-variant-numeric: tabular-nums;
-    }
-    .code .sep {
-      color: var(--accent);
-      opacity: 0.5;
-      margin: 0 6px;
-    }
-    .code.empty {
-      color: var(--text-muted);
-      letter-spacing: 0.2em;
-      opacity: 0.4;
-    }
+/* 背景光晕 */
 
-    .meta {
-      margin-top: 14px;
-      font-size: 12.5px;
-      color: var(--text-soft);
-      min-height: 20px;
-    }
-    .meta .countdown {
-      font-family: "SF Mono", "JetBrains Mono", "Menlo", monospace;
-      font-weight: 600;
-      color: var(--highlight);
-    }
-    .meta .countdown.warn { color: var(--warn); }
-    .meta .countdown.danger { color: var(--danger); }
-    .meta .error {
-      color: var(--danger);
-    }
 
-    /* 操作按钮 */
-    .actions {
-      margin-top: 24px;
-      display: flex;
-      gap: 12px;
-    }
-    .btn {
-      flex: 1;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      font-size: 13.5px;
-      font-weight: 500;
-      padding: 13px 18px;
-      border-radius: 999px;
-      cursor: pointer;
-      border: 1px solid transparent;
-      transition: all 0.3s ease;
-      font-family: inherit;
-      position: relative;
-      overflow: hidden;
-    }
-    .btn:disabled {
-      cursor: not-allowed;
-      opacity: 0.4;
-    }
-    .btn svg { width: 15px; height: 15px; flex-shrink: 0; }
+body::before {
 
-    .btn-primary {
-      background: var(--accent);
-      color: var(--bg);
-    }
-    .btn-primary:hover:not(:disabled) {
-      transform: translateY(-1px);
-      box-shadow: 0 4px 16px var(--accent-glow);
-    }
-    .btn-primary.copied {
-      background: var(--highlight);
-    }
+    content:"";
 
-    .btn-outline {
-      background: var(--card-2);
-      color: var(--text);
-      border-color: var(--card-border);
-    }
-    .btn-outline:hover:not(:disabled) {
-      border-color: var(--card-border-strong);
-      background: var(--card-2);
-    }
+    position:fixed;
 
-    /* 底部提示 */
-    .hint {
-      margin-top: 22px;
-      font-size: 12px;
-      color: var(--text-muted);
-      text-align: center;
-      line-height: 1.6;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-    .hint kbd {
-      display: inline-flex;
-      align-items: center;
-      padding: 2px 7px;
-      font-size: 11px;
-      font-family: inherit;
-      color: var(--text-soft);
-      background: var(--kbd-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 5px;
-      line-height: 1.5;
-    }
-    .hint .shield {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      color: var(--text-soft);
-    }
-    .hint .shield svg { width: 13px; height: 13px; color: var(--highlight); }
+    width:420px;
 
-    /* ============================================================
-       Footer
-       ============================================================ */
-    .footer {
-      position: relative;
-      z-index: 1;
-      border-top: 1px solid var(--card-border);
-      transition: border-color 0.4s ease;
-    }
-    .footer-inner {
-      max-width: 1180px;
-      margin: 0 auto;
-      padding: 36px 56px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 24px;
-      flex-wrap: wrap;
-    }
-    .footer-copy {
-      font-size: 12.5px;
-      color: var(--text-soft);
-      letter-spacing: 0.01em;
-    }
-    .footer-copy b { color: var(--text); font-weight: 500; }
-    .footer-copy .sep { color: var(--text-muted); margin: 0 8px; }
+    height:420px;
 
-    .footer-stats {
-      display: flex;
-      align-items: center;
-      gap: 28px;
-    }
-    .stat-dot {
-      display: inline-flex;
-      align-items: center;
-      gap: 7px;
-      font-size: 12px;
-      color: var(--text-muted);
-    }
-    .stat-dot::before {
-      content: "";
-      width: 6px; height: 6px;
-      border-radius: 50%;
-      background: var(--highlight);
-      box-shadow: 0 0 0 3px var(--highlight-soft);
-    }
+    right:-150px;
 
-    /* ============================================================
-       返回顶部
-       ============================================================ */
-    .back-top {
-      position: fixed;
-      right: 32px; bottom: 32px;
-      width: 44px; height: 44px;
-      display: grid;
-      place-items: center;
-      border-radius: 50%;
-      background: var(--card);
-      border: 1px solid var(--card-border);
-      box-shadow: var(--shadow-md);
-      color: var(--text-soft);
-      opacity: 0;
-      visibility: hidden;
-      transform: translateY(12px) scale(0.9);
-      transition: all 0.3s ease;
-      z-index: 90;
-    }
-    .back-top.show {
-      opacity: 1;
-      visibility: visible;
-      transform: translateY(0) scale(1);
-    }
-    .back-top:hover {
-      color: var(--accent);
-      border-color: var(--accent);
-      transform: translateY(-2px);
-    }
-    .back-top svg { width: 18px; height: 18px; }
+    top:-150px;
 
-    /* ============================================================
-       动画关键帧
-       ============================================================ */
-    @keyframes fadeUp {
-      to { opacity: 1; transform: translateY(0); }
-    }
+    border-radius:50%;
 
-    /* ============================================================
-       响应式
-       ============================================================ */
-    @media (max-width: 1023px) {
-      .header { padding: 14px 32px; }
-      .header-left { gap: 28px; }
-      .nav-links { gap: 22px; }
-      .main { padding: 0 32px; }
-      .hero { padding: 88px 0 24px; }
-      .footer-inner { padding: 32px; }
-    }
+    background:#ffd5e5;
 
-    @media (max-width: 767px) {
-      .header { padding: 13px 20px; }
-      .nav-links { display: none; }
-      .brand-name { font-size: 14px; }
-      .clock-date, .clock-sep { display: none; }
-      .main { padding: 0 20px; }
-      .hero { padding: 64px 0 16px; }
-      .hero-title { font-size: 38px; letter-spacing: -0.03em; }
-      .hero-sub { font-size: 15.5px; }
-      .tool-card { padding: 32px 24px 24px; }
-      .code { font-size: 38px; }
-      .footer-inner {
-        padding: 28px 20px;
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 18px;
-      }
-      .footer-stats { gap: 22px; }
-      .back-top { right: 20px; bottom: 20px; }
-    }
+    filter:blur(90px);
 
-    @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after {
-        animation-duration: 0.01ms !important;
-        transition-duration: 0.01ms !important;
-      }
-    }
-  </style>
+    opacity:.6;
+
+    z-index:-1;
+
+}
+
+
+
+body::after {
+
+    content:"";
+
+    position:fixed;
+
+    inset:0;
+
+    background-image:
+
+    radial-gradient(
+        rgba(210,90,130,.08) 1px,
+        transparent 1px
+    );
+
+    background-size:20px 20px;
+
+    pointer-events:none;
+
+    opacity:.35;
+
+    z-index:-1;
+
+}
+
+
+
+.container {
+
+    width:min(480px,100%);
+
+    margin:35px auto;
+
+}
+
+
+
+.card {
+
+    background:
+
+    rgba(255,255,255,.9);
+
+
+    border:1px solid var(--border);
+
+
+    border-radius:24px;
+
+
+    padding:28px 24px;
+
+
+    box-shadow:
+
+    0 15px 40px rgba(200,80,120,.12);
+
+}
+
+
+
+.title {
+
+    font-size:30px;
+
+    font-weight:700;
+
+    letter-spacing:-1px;
+
+    color:var(--main);
+
+    text-align:center;
+
+    margin-bottom:30px;
+
+}
+
+
+
+.form-item {
+
+    margin-bottom:18px;
+
+}
+
+
+
+.form-item label {
+
+    display:block;
+
+    margin-bottom:10px;
+
+    color:#8d767f;
+
+    font-size:14px;
+
+}
+
+
+
+.form-item input {
+
+    width:100%;
+
+    padding:15px 16px;
+
+    border-radius:16px;
+
+    border:1px solid var(--border);
+
+    outline:none;
+
+    background:white;
+
+    font-size:15px;
+
+    transition:.25s;
+
+}
+
+
+
+.form-item input:focus {
+
+    border-color:var(--main);
+
+    box-shadow:
+
+    0 0 0 4px rgba(211,77,125,.12);
+
+}
+
+
+
+.btn-group {
+
+    display:flex;
+
+    gap:14px;
+
+    margin:25px 0;
+
+}
+
+
+
+button {
+
+    flex:1;
+
+    padding:15px;
+
+    border:none;
+
+    border-radius:18px;
+
+    font-size:16px;
+
+    font-weight:600;
+
+    cursor:pointer;
+
+}
+
+
+
+.btn-primary {
+
+    background:var(--main);
+
+    color:white;
+
+}
+
+
+
+.btn-primary:active {
+
+    transform:scale(.97);
+
+}
+
+
+
+.btn-default {
+
+    background:var(--light);
+
+    color:var(--main);
+
+}
+
+
+
+.code-box {
+
+    background:white;
+
+    border:1px solid var(--border);
+
+    border-radius:22px;
+
+    padding:28px 20px;
+
+    text-align:center;
+
+}
+
+
+
+.code {
+
+    font-size:42px;
+
+    font-weight:700;
+
+    letter-spacing:8px;
+
+    color:#422630;
+
+}
+
+
+
+.info {
+
+    margin-top:12px;
+
+    justify-content:center;
+
+    display:flex;
+
+    color:#9b858d;
+
+    font-size:14px;
+
+}
+
+
+
+.tip {
+
+    margin-top:18px;
+
+    text-align:center;
+
+    color:#d34d7d;
+
+    font-size:14px;
+
+}
+
+
+
+.error {
+
+    color:#ef4444;
+
+}
+
+
+
+.footer {
+
+    text-align:center;
+
+    margin-top:40px;
+
+    color:#c2a8b1;
+
+    font-size:13px;
+
+}
+
+
+
+</style>
+
 </head>
 
+
 <body>
-  <!-- 顶部加载进度条 -->
-  <div class="progress" id="progress" aria-hidden="true"></div>
 
-  <!-- 背景层 -->
-  <div class="bg-layer" aria-hidden="true">
-    <div class="blob blob-a"></div>
-    <div class="blob blob-b"></div>
-    <div class="grain"></div>
-  </div>
 
-  <!-- Header -->
-  <header class="header" id="header">
-    <div class="header-left">
-      <a class="brand" href="index.html" aria-label="返回首页">
-        <span class="brand-mark" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M4 18L12 4l8 14" />
-            <path d="M8 18h8" />
-          </svg>
-        </span>
-        <span class="brand-name">小豆<span>·</span>工具箱</span>
-      </a>
+<div id="app" class="container">
 
-      <nav class="nav-links" aria-label="主导航">
-        <a class="nav-link" href="index.html">入口</a>
-        <a class="nav-link active" href="#">工具</a>
-        <a class="nav-link" href="#">文档</a>
-      </nav>
-    </div>
 
-    <div class="header-tools">
-      <div class="clock" id="clock" aria-live="polite">
-        <span class="clock-date" id="clockDate">—</span>
-        <span class="clock-sep" aria-hidden="true"></span>
-        <span class="clock-time" id="clockTime">—:—:—</span>
-      </div>
+<div class="card">
 
-      <button class="theme-toggle" id="themeToggle" type="button" aria-label="切换深色 / 浅色主题">
-        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="4" />
-          <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
-        </svg>
-        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-        </svg>
-      </button>
-    </div>
-  </header>
 
-  <!-- Main -->
-  <main class="main">
-    <!-- Hero -->
-    <section class="hero">
-      <span class="hero-eyebrow">
-        <span class="dot"></span>
-        2FA Authenticator
-      </span>
-      <h1 class="hero-title">动态验证码，<em>安全即达</em></h1>
-      <p class="hero-sub">
-        基于 RFC 6238 标准的 TOTP 验证码生成器。输入 Base32 密钥，自动生成 6 位动态验证码，每 30 秒刷新并自动复制到剪贴板。
-      </p>
-    </section>
+<div class="title">
+2FA 验证码生成器
+</div>
 
-    <!-- 2FA 工具卡片 -->
-    <section class="tool-wrap" aria-label="2FA 验证码生成器">
-      <div class="tool-card">
-        <div class="tool-head">
-          <div class="tool-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-              <path d="M9 12l2 2 4-4" />
-            </svg>
-          </div>
-        </div>
-        <h2 class="tool-title">2FA 验证码</h2>
-        <p class="tool-subtitle">TOTP Generator</p>
-        <p class="tool-desc">输入 TOTP 密钥，自动生成 6 位动态验证码</p>
 
-        <!-- 密钥输入 -->
-        <div class="field">
-          <label class="label" for="secret">密钥（Base32）</label>
-          <div class="input-wrap">
-            <svg class="input-leading" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-              <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-            </svg>
-            <input
-              id="secret"
-              class="input"
-              type="text"
-              placeholder="粘贴或输入密钥"
-              autocomplete="off"
-              spellcheck="false"
-              aria-label="TOTP 密钥"
-            />
-            <button
-              class="clear-btn"
-              id="clearBtn"
-              type="button"
-              title="一键清空"
-              aria-label="清空"
-            >
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
-              </svg>
-            </button>
-          </div>
-        </div>
 
-        <!-- 验证码展示 -->
-        <div class="code-area" id="codeArea">
-          <div class="code-label">当前验证码</div>
-          <div class="code empty" id="code">------</div>
-          <div class="meta" id="meta">输入密钥后自动生成</div>
-        </div>
+<div class="form-item">
 
-        <!-- 操作按钮 -->
-        <div class="actions">
-          <button class="btn btn-primary" id="copyBtn" type="button" disabled>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-            </svg>
-            <span id="copyText">复制验证码</span>
-          </button>
-        </div>
 
-        <!-- 底部提示 -->
-        <div class="hint">
-          <span class="shield">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-            </svg>
-            本地运算 · 密钥不上传
-          </span>
-          <span>·</span>
-          <span>每 30 秒自动刷新</span>
-        </div>
-      </div>
-    </section>
-  </main>
+<label>
+2FA 密钥（Base32）
+</label>
 
-  <!-- Footer -->
-  <footer class="footer">
-    <div class="footer-inner">
-      <p class="footer-copy">
-        © <span id="year">2026</span> <b>小豆</b>
-        <span class="sep">·</span> All rights reserved
-      </p>
-      <div class="footer-stats">
-        <span class="stat-dot">本地运算 · 安全可靠</span>
-      </div>
-    </div>
-  </footer>
 
-  <!-- 返回顶部 -->
-  <button class="back-top" id="backTop" type="button" aria-label="返回顶部">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M12 19V5M5 12l7-7 7 7" />
-    </svg>
-  </button>
+<input
 
-  <script>
-    /* ============================================================
-       2FA TOTP 核心逻辑（保留原功能）
-       ============================================================ */
-    (function () {
-      "use strict";
-      const PERIOD = 30;
-      const DIGITS = 6;
-      const BASE32_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+v-model="form.secret"
 
-      const secretInput = document.getElementById("secret");
-      const clearBtn = document.getElementById("clearBtn");
-      const codeEl = document.getElementById("code");
-      const metaEl = document.getElementById("meta");
-      const codeArea = document.getElementById("codeArea");
-      const copyBtn = document.getElementById("copyBtn");
-      const copyText = document.getElementById("copyText");
+placeholder="输入或粘贴密钥，自动去空格"
 
-      let lastCode = "";
-      let lastSecret = "";
-      let copyResetTimer = null;
-      let reqId = 0;
+@blur="handleBlur"
 
-      // Base32 解码（RFC 4648）
-      function base32Decode(input) {
-        const cleaned = input.replace(/[\s=]/g, "").toUpperCase();
-        let bits = 0;
-        let value = 0;
-        const output = [];
-        for (let i = 0; i < cleaned.length; i++) {
-          const idx = BASE32_ALPHABET.indexOf(cleaned[i]);
-          if (idx === -1) continue;
-          value = (value << 5) | idx;
-          bits += 5;
-          if (bits >= 8) {
-            output.push((value >>> (bits - 8)) & 0xff);
-            bits -= 8;
-          }
+/>
+
+
+</div>
+
+
+
+<div class="btn-group">
+
+
+<button
+
+class="btn-primary"
+
+@click="submit">
+
+生成验证码
+
+</button>
+
+
+
+<button
+
+class="btn-default"
+
+@click="clearForm">
+
+清空
+
+</button>
+
+
+</div>
+
+
+
+<div
+
+class="code-box"
+
+v-if="tableData.length">
+
+
+<div class="code">
+
+{{ tableData[0].code }}
+
+</div>
+
+
+<div class="info">
+
+<span>
+
+剩余 {{ tableData[0].remaining }} 秒
+
+</span>
+
+</div>
+
+
+</div>
+
+
+
+<div
+
+class="tip"
+
+:class="{error:isError}"
+
+v-if="tipText">
+
+{{tipText}}
+
+</div>
+
+
+</div>
+
+
+
+<div class="footer">
+
+© 2026 2FA 工具
+
+</div>
+
+
+</div>
+<script>
+
+
+const TOTP = {
+
+
+    base32Decode(secret) {
+
+
+        const base32Chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+
+
+        let bits = "";
+
+
+        for (let i = 0; i < secret.length; i++) {
+
+
+            const val = base32Chars.indexOf(
+                secret[i].toUpperCase()
+            );
+
+
+            if (val === -1) {
+
+                throw new Error("非法 Base32 字符");
+
+            }
+
+
+            bits += val.toString(2).padStart(5,"0");
+
         }
-        return new Uint8Array(output);
-      }
 
-      function isValidBase32(s) {
-        const cleaned = s.replace(/[\s=]/g, "").toUpperCase();
-        return /^[A-Z2-7]{8,}$/.test(cleaned);
-      }
 
-      async function hmacSha1(keyBytes, msgBytes) {
+
+        const bytes = [];
+
+
+        for (
+            let i = 0;
+            i + 8 <= bits.length;
+            i += 8
+        ) {
+
+
+            bytes.push(
+                parseInt(
+                    bits.substr(i,8),
+                    2
+                )
+            );
+
+
+        }
+
+
+        return new Uint8Array(bytes);
+
+
+    },
+
+
+
+    async hmacSha1(key,data){
+
+
         const cryptoKey = await crypto.subtle.importKey(
-          "raw", keyBytes,
-          { name: "HMAC", hash: "SHA-1" },
-          false, ["sign"]
+
+
+            "raw",
+
+            key,
+
+            {
+                name:"HMAC",
+                hash:"SHA-1"
+            },
+
+            false,
+
+            ["sign"]
+
         );
-        const sig = await crypto.subtle.sign("HMAC", cryptoKey, msgBytes);
-        return new Uint8Array(sig);
-      }
 
-      async function generateTOTP(secret, period, digits) {
-        const keyBytes = base32Decode(secret);
-        if (keyBytes.length === 0) return "";
-        const counter = Math.floor(Date.now() / 1000 / period);
-        const msgBytes = new Uint8Array(8);
-        const view = new DataView(msgBytes.buffer);
-        view.setUint32(0, Math.floor(counter / 0x100000000));
-        view.setUint32(4, counter >>> 0);
-        const hash = await hmacSha1(keyBytes, msgBytes);
-        const offset = hash[hash.length - 1] & 0x0f;
-        const binary =
-          ((hash[offset] & 0x7f) << 24) |
-          ((hash[offset + 1] & 0xff) << 16) |
-          ((hash[offset + 2] & 0xff) << 8) |
-          (hash[offset + 3] & 0xff);
-        const otp = binary % Math.pow(10, digits);
-        return otp.toString().padStart(digits, "0");
-      }
 
-      function remainingSeconds() {
-        const t = Math.floor(Date.now() / 1000);
-        return PERIOD - (t % PERIOD);
-      }
 
-      function renderCode(code) {
-        if (!code) {
-          codeEl.textContent = "------";
-          codeEl.classList.add("empty");
-          return;
-        }
-        codeEl.classList.remove("empty");
-        codeEl.innerHTML =
-          code.slice(0, 3) + '<span class="sep">-</span>' + code.slice(3, 6);
-      }
+        const signature =
+        await crypto.subtle.sign(
 
-      function renderCountdown() {
-        if (!lastCode) return;
-        const remaining = remainingSeconds();
-        const cls = remaining > 20 ? "" : remaining > 10 ? "warn" : "danger";
-        metaEl.innerHTML =
-          '剩余 <span class="countdown ' + cls + '">' + remaining + '</span> 秒后刷新';
-        // 更新进度环
-        const pct = ((PERIOD - remaining) / PERIOD) * 100;
-        codeArea.style.setProperty('--ring', pct + '%');
-      }
+            "HMAC",
 
-      async function copyToClipboard(text) {
-        try {
-          await navigator.clipboard.writeText(text);
-          return true;
-        } catch (e) {
-          const ta = document.createElement("textarea");
-          ta.value = text;
-          ta.style.position = "fixed";
-          ta.style.opacity = "0";
-          document.body.appendChild(ta);
-          ta.select();
-          let ok = false;
-          try { ok = document.execCommand("copy"); } catch (err) {}
-          document.body.removeChild(ta);
-          return ok;
-        }
-      }
+            cryptoKey,
 
-      function showCopied(isAuto) {
-        copyBtn.classList.add("copied");
-        copyText.textContent = isAuto ? "已自动复制" : "已复制";
-        copyBtn.disabled = false;
-        if (copyResetTimer) clearTimeout(copyResetTimer);
-        copyResetTimer = setTimeout(function () {
-          copyBtn.classList.remove("copied");
-          copyText.textContent = "复制验证码";
-        }, 1500);
-      }
+            data
 
-      async function update(autoCopy) {
-        const raw = secretInput.value.trim();
-        const secret = raw.replace(/[\s=]/g, "").toUpperCase();
-        clearBtn.classList.toggle("show", secretInput.value.length > 0);
+        );
 
-        if (!raw) {
-          lastCode = "";
-          lastSecret = "";
-          renderCode("");
-          metaEl.textContent = "输入密钥后自动生成";
-          codeArea.style.setProperty('--ring', '0%');
-          copyBtn.disabled = true;
-          return;
-        }
 
-        if (!isValidBase32(raw)) {
-          lastCode = "";
-          lastSecret = "";
-          renderCode("");
-          metaEl.innerHTML = '<span class="error">密钥格式不正确（需 Base32：A-Z、2-7，至少 8 位）</span>';
-          codeArea.style.setProperty('--ring', '0%');
-          copyBtn.disabled = true;
-          return;
-        }
 
-        const myReq = ++reqId;
-        let code;
-        try {
-          code = await generateTOTP(secret, PERIOD, DIGITS);
-        } catch (e) {
-          return;
-        }
-        if (myReq !== reqId) return;
+        return new Uint8Array(signature);
 
-        const isNew = code !== lastCode || secret !== lastSecret;
-        lastCode = code;
-        lastSecret = secret;
-        renderCode(code);
-        copyBtn.disabled = false;
-        renderCountdown();
 
-        if (autoCopy && isNew) {
-          copyToClipboard(code).then(function (ok) {
-            if (ok && myReq === reqId) showCopied(true);
-          });
-        }
-      }
+    },
 
-      secretInput.addEventListener("input", function () { update(true); });
 
-      clearBtn.addEventListener("click", function () {
-        secretInput.value = "";
-        lastCode = "";
-        lastSecret = "";
-        reqId++;
-        secretInput.focus();
-        update(false);
-      });
 
-      copyBtn.addEventListener("click", function () {
-        if (!lastCode) return;
-        copyToClipboard(lastCode).then(function (ok) {
-          if (ok) showCopied(false);
-        });
-      });
+    async generate(
+        secret,
+        step=30,
+        digits=6
+    ){
 
-      setInterval(function () {
-        if (!lastCode) return;
-        update(true);
-      }, 1000);
 
-      update(false);
-      secretInput.focus();
-    })();
+        const key =
+        this.base32Decode(
+            secret.replace(/\s+/g,"")
+        );
 
-    /* ============================================================
-       主题切换、时钟、滚动、进度条（与 index 一致）
-       ============================================================ */
-    const ThemeModule = (function () {
-      const toggle = document.getElementById('themeToggle');
-      const KEY = '小豆-theme';
-      function init() {
-        const saved = localStorage.getItem(KEY);
-        if (saved) document.documentElement.setAttribute('data-theme', saved);
-        toggle.addEventListener('click', function () {
-          const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-          document.documentElement.setAttribute('data-theme', next);
-          localStorage.setItem(KEY, next);
-        });
-      }
-      return { init };
-    })();
 
-    const ClockModule = (function () {
-      const dateEl = document.getElementById('clockDate');
-      const timeEl = document.getElementById('clockTime');
-      const weekdays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
-      const pad = (n) => (n < 10 ? '0' + n : '' + n);
-      function tick() {
-        const now = new Date();
-        dateEl.textContent = `${now.getMonth() + 1}月${now.getDate()}日 ${weekdays[now.getDay()]}`;
-        timeEl.textContent = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
-      }
-      function init() { tick(); setInterval(tick, 1000); }
-      return { init };
-    })();
 
-    const ScrollModule = (function () {
-      const backTop = document.getElementById('backTop');
-      const header = document.getElementById('header');
-      function init() {
-        window.addEventListener('scroll', function () {
-          const y = window.scrollY;
-          backTop.classList.toggle('show', y > 320);
-          header.classList.toggle('scrolled', y > 8);
-        }, { passive: true });
-      }
-      return { init };
-    })();
+        const epoch =
+        Math.floor(
+            Date.now()/1000/step
+        );
 
-    const ProgressModule = (function () {
-      const bar = document.getElementById('progress');
-      function init() {
-        bar.classList.add('active');
-        let p = 0;
-        const step = () => {
-          p += Math.random() * 16 + 8;
-          if (p >= 100) {
-            bar.style.width = '100%';
-            setTimeout(() => {
-              bar.classList.remove('active');
-              bar.style.width = '0';
-            }, 450);
-            return;
-          }
-          bar.style.width = p + '%';
-          requestAnimationFrame(step);
+
+
+        const data =
+        new ArrayBuffer(8);
+
+
+
+        const view =
+        new DataView(data);
+
+
+
+        view.setUint32(
+            4,
+            epoch,
+            false
+        );
+
+
+
+        const hmac =
+        await this.hmacSha1(
+
+            key,
+
+            new Uint8Array(data)
+
+        );
+
+
+
+        const offset =
+        hmac[
+            hmac.length-1
+        ] & 0x0f;
+
+
+
+        const code =
+
+        (
+
+            (
+
+                ((hmac[offset]&0x7f)<<24)
+
+                |
+
+                ((hmac[offset+1]&0xff)<<16)
+
+                |
+
+                ((hmac[offset+2]&0xff)<<8)
+
+                |
+
+                (hmac[offset+3]&0xff)
+
+            )
+
+            %
+
+            Math.pow(10,digits)
+
+        );
+
+
+
+        return code
+        .toString()
+        .padStart(digits,"0");
+
+
+    }
+
+
+};
+
+
+
+
+
+new Vue({
+
+
+    el:"#app",
+
+
+
+    data(){
+
+
+        return {
+
+
+            form:{
+
+                secret:""
+
+            },
+
+
+            tableData:[],
+
+
+            timer:null,
+
+
+            isFetching:false,
+
+
+            tipText:"",
+
+
+            isError:false
+
+
         };
-        requestAnimationFrame(step);
-      }
-      return { init };
-    })();
 
-    const FooterModule = (function () {
-      function init() {
-        document.getElementById('year').textContent = new Date().getFullYear();
-      }
-      return { init };
-    })();
 
-    document.addEventListener('DOMContentLoaded', () => {
-      ThemeModule.init();
-      ClockModule.init();
-      ScrollModule.init();
-      ProgressModule.init();
-      FooterModule.init();
-    });
-  </script>
+    },
+
+
+
+    methods:{
+
+
+
+        handleBlur(){
+
+
+            if(!this.form.secret){
+
+
+                this.setTip(
+                    "请输入2FA密钥",
+                    true
+                );
+
+
+            }
+
+
+        },
+
+
+
+
+        setTip(
+            text,
+            error=false
+        ){
+
+
+            this.tipText=text;
+
+
+            this.isError=error;
+
+
+
+            setTimeout(()=>{
+
+
+                this.tipText="";
+
+
+            },2000);
+
+
+        },
+
+
+
+
+
+        clearForm(){
+
+
+            this.form.secret="";
+
+
+            this.tableData=[];
+
+
+
+            if(this.timer){
+
+
+                clearInterval(
+                    this.timer
+                );
+
+
+            }
+
+
+
+            this.isFetching=false;
+
+
+
+            this.setTip(
+                "已清空"
+            );
+
+
+        },
+
+
+
+
+
+        async submit(){
+
+
+            if(!this.form.secret){
+
+
+                this.setTip(
+                    "请输入2FA密钥",
+                    true
+                );
+
+
+                return;
+
+
+            }
+
+
+
+            this.fetchCode();
+
+
+        },
+
+
+
+
+
+        async fetchCode(
+            isAuto=false
+        ){
+
+
+            if(this.isFetching)
+            return;
+
+
+
+            this.isFetching=true;
+
+
+
+            try{
+
+
+                const secret =
+                this.form.secret
+                .replace(/\s+/g,"")
+                .trim();
+
+
+
+                const code =
+                await TOTP.generate(
+                    secret
+                );
+
+
+
+                this.updateTable(
+                    code,
+                    secret
+                );
+
+
+
+                this.copyCode(code);
+
+
+
+                if(!isAuto){
+
+
+                    this.setTip(
+                        "验证码已生成并复制"
+                    );
+
+
+                }
+
+
+
+            }catch(err){
+
+
+
+                console.error(err);
+
+
+
+                if(!isAuto){
+
+
+                    this.setTip(
+                        "密钥格式错误",
+                        true
+                    );
+
+
+                }
+
+
+            }
+            finally{
+
+
+                this.isFetching=false;
+
+
+            }
+
+
+        },
+
+
+
+
+
+        updateTable(
+            code,
+            key
+        ){
+
+
+            if(this.timer){
+
+
+                clearInterval(
+                    this.timer
+                );
+
+
+            }
+
+
+
+            const updateAction =
+            ()=>{
+
+
+
+                const epoch =
+                Math.floor(
+                    Date.now()/1000
+                );
+
+
+
+                const timeLeft =
+                30 -
+                (
+                    epoch % 30
+                );
+
+
+
+                this.tableData=[{
+
+
+                    code,
+
+
+                    remaining:timeLeft,
+
+
+                    key
+
+
+
+                }];
+
+
+
+                if(
+                    timeLeft===30
+                ){
+
+
+                    this.fetchCode(true);
+
+
+                }
+
+
+            };
+
+
+
+            updateAction();
+
+
+
+            this.timer =
+            setInterval(
+                updateAction,
+                1000
+            );
+
+
+        },
+
+
+
+
+
+        async copyCode(code){
+
+
+            try{
+
+
+                await navigator.clipboard.writeText(
+                    code
+                );
+
+
+            }catch(err){
+
+
+                const input =
+                document.createElement(
+                    "input"
+                );
+
+
+                input.value=code;
+
+
+
+                document.body.appendChild(
+                    input
+                );
+
+
+                input.select();
+
+
+
+                document.execCommand(
+                    "copy"
+                );
+
+
+
+                document.body.removeChild(
+                    input
+                );
+
+
+            }
+
+
+        }
+
+
+    },
+
+
+
+
+    beforeDestroy(){
+
+
+        if(this.timer){
+
+
+            clearInterval(
+                this.timer
+            );
+
+
+        }
+
+
+    }
+
+
+
+});
+
+
+
+</script>
+
+
 </body>
 </html>
