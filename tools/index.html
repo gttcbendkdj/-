@@ -1,1288 +1,797 @@
 <!DOCTYPE html>
-<html lang="zh-CN" data-theme="dark">
+<html lang="zh-CN">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="实用工具库 · 暗色精品控制台风格，整合账号检测、UID提取、2FA验证、Cookie登录等实用工具。" />
-  <meta name="keywords" content="工具箱,账号检测,UID提取,2FA验证,Cookie登录,脸书,软件下载" />
-  <meta name="author" content="小豆" />
-  <meta name="theme-color" content="#11100E" media="(prefers-color-scheme: dark)" />
-  <meta name="theme-color" content="#F4EFE7" media="(prefers-color-scheme: light)" />
-  <meta property="og:title" content="小豆 · 实用工具库" />
-  <meta property="og:description" content="暗色精品控制台风格的实用工具集合。" />
-  <meta property="og:type" content="website" />
-  <title>小豆 · 实用工具库</title>
 
-  <style>
-    /* ============================================================
-       设计系统：暗色精品控制台
-       默认暗色 — 深炭底 + 暖白文字 + 暖铜色点缀 + 鼠尾草绿辅助
-       浅色  — 暖米白底 + 深炭文字 + 同色系点缀
-       ============================================================ */
-    :root,
-    [data-theme="dark"] {
-      --bg: #11100E;
-      --bg-soft: #16140F;
-      --card: #1A1815;
-      --card-2: rgba(255, 255, 255, 0.04);
-      --card-border: rgba(255, 255, 255, 0.08);
-      --card-border-strong: rgba(196, 154, 99, 0.35);
-      --text: #F4EFE7;
-      --text-soft: #A8A096;
-      --text-muted: #6E6A62;
-      --accent: #C49A63;
-      --accent-soft: rgba(196, 154, 99, 0.12);
-      --accent-glow: rgba(196, 154, 99, 0.18);
-      --highlight: #7E8F78;
-      --highlight-soft: rgba(126, 143, 120, 0.14);
-      --highlight-glow: rgba(126, 143, 120, 0.22);
-      --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
-      --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.35), 0 16px 40px rgba(0, 0, 0, 0.45);
-      --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.45), 0 32px 80px rgba(0, 0, 0, 0.55);
-      --glass: rgba(26, 24, 21, 0.72);
-      --glass-border: rgba(255, 255, 255, 0.06);
-      --input-bg: rgba(255, 255, 255, 0.03);
-      --input-border: rgba(255, 255, 255, 0.10);
-      --header-bg: rgba(17, 16, 14, 0.72);
-      --kbd-bg: rgba(255, 255, 255, 0.05);
-      --ripple: rgba(196, 154, 99, 0.30);
-      --match-ring: rgba(126, 143, 120, 0.50);
-      --progress: linear-gradient(90deg, #C49A63 0%, #7E8F78 100%);
-      --grain-opacity: 0.04;
-      --blob-a: rgba(196, 154, 99, 0.10);
-      --blob-b: rgba(126, 143, 120, 0.08);
-    }
+<meta charset="UTF-8">
 
-    [data-theme="light"] {
-      --bg: #F4EFE7;
-      --bg-soft: #EDE6DA;
-      --card: #FFFFFF;
-      --card-2: rgba(31, 29, 26, 0.03);
-      --card-border: rgba(31, 29, 26, 0.10);
-      --card-border-strong: rgba(168, 124, 60, 0.40);
-      --text: #1A1815;
-      --text-soft: #5C574F;
-      --text-muted: #9A9389;
-      --accent: #A87C3E;
-      --accent-soft: rgba(168, 124, 60, 0.10);
-      --accent-glow: rgba(168, 124, 60, 0.16);
-      --highlight: #5E7058;
-      --highlight-soft: rgba(94, 112, 88, 0.12);
-      --highlight-glow: rgba(94, 112, 88, 0.20);
-      --shadow-sm: 0 1px 2px rgba(31, 29, 26, 0.05);
-      --shadow-md: 0 4px 12px rgba(31, 29, 26, 0.06), 0 16px 40px rgba(31, 29, 26, 0.08);
-      --shadow-lg: 0 8px 24px rgba(31, 29, 26, 0.08), 0 32px 80px rgba(31, 29, 26, 0.12);
-      --glass: rgba(255, 255, 255, 0.72);
-      --glass-border: rgba(255, 255, 255, 0.6);
-      --input-bg: rgba(255, 255, 255, 0.6);
-      --input-border: rgba(31, 29, 26, 0.12);
-      --header-bg: rgba(244, 239, 231, 0.78);
-      --kbd-bg: rgba(31, 29, 26, 0.04);
-      --ripple: rgba(168, 124, 60, 0.28);
-      --match-ring: rgba(94, 112, 88, 0.45);
-      --progress: linear-gradient(90deg, #A87C3E 0%, #5E7058 100%);
-      --grain-opacity: 0.025;
-      --blob-a: rgba(168, 124, 60, 0.10);
-      --blob-b: rgba(94, 112, 88, 0.08);
-    }
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    /* ============================================================
-       基础重置
-       ============================================================ */
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+<title>实用工具库</title>
 
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display",
-        "SF Pro Text", "Segoe UI", "PingFang SC", "Hiragino Sans GB",
-        "Microsoft YaHei", sans-serif;
-      background-color: var(--bg);
-      color: var(--text);
-      line-height: 1.6;
-      min-height: 100vh;
-      overflow-x: hidden;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-      transition: background-color 0.4s ease, color 0.4s ease;
-      font-feature-settings: "ss01", "cv01", "tnum";
-    }
 
-    a { color: inherit; text-decoration: none; }
-    button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
-    ::selection { background: var(--accent); color: #fff; }
+<style>
 
-    /* ============================================================
-       背景层：极淡光斑 + 颗粒纹理
-       ============================================================ */
-    .bg-layer {
-      position: fixed;
-      inset: 0;
-      z-index: 0;
-      pointer-events: none;
-      overflow: hidden;
-    }
-    .blob {
-      position: absolute;
-      border-radius: 50%;
-      filter: blur(100px);
-      transition: background 0.4s ease;
-    }
-    .blob-a {
-      width: 620px; height: 620px;
-      top: -200px; right: -160px;
-      background: var(--blob-a);
-    }
-    .blob-b {
-      width: 520px; height: 520px;
-      bottom: -180px; left: -140px;
-      background: var(--blob-b);
-    }
-    .grain {
-      position: absolute;
-      inset: 0;
-      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.5 0'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.5'/></svg>");
-      opacity: var(--grain-opacity);
-      mix-blend-mode: overlay;
-    }
+:root{
 
-    /* ============================================================
-       顶部加载进度条
-       ============================================================ */
-    .progress {
-      position: fixed;
-      top: 0; left: 0;
-      height: 2px;
-      width: 0;
-      background: var(--progress);
-      z-index: 1000;
-      opacity: 0;
-      transition: opacity 0.3s ease;
-    }
-    .progress.active { opacity: 1; }
+    --main:#d34d7d;
+    --light:#fde7ef;
+    --border:#f2d8e3;
+    --text:#422630;
+    --sub:#8d767f;
 
-    /* ============================================================
-       Header
-       ============================================================ */
-    .header {
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 16px 56px;
-      background: var(--header-bg);
-      backdrop-filter: saturate(180%) blur(20px);
-      -webkit-backdrop-filter: saturate(180%) blur(20px);
-      border-bottom: 1px solid transparent;
-      transition: border-color 0.3s ease, background 0.4s ease;
-    }
-    .header.scrolled { border-bottom-color: var(--card-border); }
+}
 
-    .header-left {
-      display: flex;
-      align-items: center;
-      gap: 40px;
-    }
 
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 11px;
-    }
-    .brand-mark {
-      width: 30px; height: 30px;
-      display: grid;
-      place-items: center;
-      border-radius: 9px;
-      background: linear-gradient(135deg, var(--accent), var(--highlight));
-      color: var(--bg);
-      transition: transform 0.3s ease;
-    }
-    .brand:hover .brand-mark { transform: rotate(-6deg); }
-    .brand-mark svg { width: 16px; height: 16px; }
 
-    .brand-name {
-      font-size: 15px;
-      font-weight: 580;
-      letter-spacing: -0.01em;
-      color: var(--text);
-    }
-    .brand-name span { color: var(--text-muted); font-weight: 400; margin: 0 2px; }
+*{
 
-    .nav-links {
-      display: flex;
-      align-items: center;
-      gap: 28px;
-    }
-    .nav-link {
-      font-size: 13px;
-      color: var(--text-soft);
-      letter-spacing: 0.01em;
-      transition: color 0.3s ease;
-      position: relative;
-    }
-    .nav-link:hover { color: var(--text); }
-    .nav-link.active { color: var(--text); }
-    .nav-link.active::after {
-      content: "";
-      position: absolute;
-      bottom: -22px;
-      left: 0; right: 0;
-      height: 2px;
-      background: var(--accent);
-      border-radius: 2px;
-    }
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
 
-    .header-tools {
-      display: flex;
-      align-items: center;
-      gap: 18px;
-    }
+    -webkit-tap-highlight-color:transparent;
 
-    .clock {
-      font-size: 12.5px;
-      font-variant-numeric: tabular-nums;
-      color: var(--text-soft);
-      letter-spacing: 0.02em;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .clock-date { color: var(--text-muted); }
-    .clock-sep {
-      width: 3px; height: 3px;
-      border-radius: 50%;
-      background: var(--text-muted);
-      opacity: 0.6;
-    }
+    font-family:
 
-    .theme-toggle {
-      width: 36px; height: 36px;
-      display: grid;
-      place-items: center;
-      border-radius: 10px;
-      border: 1px solid var(--card-border);
-      background: var(--card-2);
-      color: var(--text-soft);
-      transition: all 0.3s ease;
-    }
-    .theme-toggle:hover {
-      color: var(--accent);
-      border-color: var(--accent);
-      transform: translateY(-1px);
-    }
-    .theme-toggle svg { width: 17px; height: 17px; }
-    .theme-toggle .icon-moon { display: none; }
-    .theme-toggle .icon-sun { display: block; }
-    [data-theme="dark"] .theme-toggle .icon-moon { display: block; }
-    [data-theme="dark"] .theme-toggle .icon-sun { display: none; }
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    "PingFang SC",
+    "Microsoft YaHei",
+    sans-serif;
 
-    /* ============================================================
-       Main
-       ============================================================ */
-    .main {
-      position: relative;
-      z-index: 1;
-      max-width: 1180px;
-      margin: 0 auto;
-      padding: 0 56px;
-    }
+}
 
-    /* Hero */
-    .hero {
-      padding: 112px 0 32px;
-      opacity: 0;
-      transform: translateY(20px);
-      animation: fadeUp 1s cubic-bezier(0.16, 1, 0.3, 1) 0.15s forwards;
-    }
 
-    .hero-eyebrow {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      padding: 6px 14px;
-      border-radius: 999px;
-      border: 1px solid var(--card-border);
-      background: var(--card-2);
-      font-size: 11.5px;
-      font-weight: 500;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--text-soft);
-      margin-bottom: 32px;
-    }
-    .hero-eyebrow .dot {
-      width: 6px; height: 6px;
-      border-radius: 50%;
-      background: var(--highlight);
-      box-shadow: 0 0 0 3px var(--highlight-soft);
-    }
 
-    .hero-title {
-      font-size: clamp(40px, 6.4vw, 72px);
-      font-weight: 600;
-      letter-spacing: -0.035em;
-      line-height: 1.05;
-      color: var(--text);
-      margin-bottom: 24px;
-      max-width: 16ch;
-    }
-    .hero-title em {
-      font-style: italic;
-      font-weight: 400;
-      background: linear-gradient(120deg, var(--accent), var(--highlight));
-      -webkit-background-clip: text;
-      background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
+body{
 
-    .hero-sub {
-      font-size: 17px;
-      line-height: 1.65;
-      color: var(--text-soft);
-      max-width: 48ch;
-      margin-bottom: 44px;
-    }
+    min-height:100vh;
 
-    /* 搜索框 */
-    .search {
-      max-width: 460px;
-      opacity: 0;
-      transform: translateY(20px);
-      animation: fadeUp 1s cubic-bezier(0.16, 1, 0.3, 1) 0.35s forwards;
-    }
-    .search-field { position: relative; display: flex; align-items: center; }
-    .search-field svg {
-      position: absolute;
-      left: 17px;
-      width: 17px; height: 17px;
-      color: var(--text-muted);
-      pointer-events: none;
-      transition: color 0.3s ease;
-    }
-    .search-input {
-      width: 100%;
-      height: 52px;
-      padding: 0 18px 0 46px;
-      font-size: 14.5px;
-      color: var(--text);
-      background: var(--input-bg);
-      border: 1px solid var(--input-border);
-      border-radius: 13px;
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      outline: none;
-      transition: all 0.3s ease;
-    }
-    .search-input::placeholder { color: var(--text-muted); }
-    .search-input:focus {
-      border-color: var(--accent);
-      background: var(--card-2);
-      box-shadow: 0 0 0 4px var(--accent-soft);
-    }
-    .search-field:focus-within svg { color: var(--accent); }
+    background:
 
-    .search-hint {
-      margin-top: 14px;
-      font-size: 12px;
-      color: var(--text-muted);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-    .search-hint kbd {
-      display: inline-flex;
-      align-items: center;
-      padding: 2px 7px;
-      font-size: 11px;
-      font-family: inherit;
-      color: var(--text-soft);
-      background: var(--kbd-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 5px;
-      line-height: 1.5;
+    linear-gradient(
+        rgba(255,248,250,.94),
+        rgba(255,248,250,.94)
+    ),
+
+    radial-gradient(
+        circle at top right,
+        #ffd5e5,
+        transparent 45%
+    );
+
+
+    color:var(--text);
+
+    padding:40px 18px;
+
+    overflow-x:hidden;
+
+}
+
+
+
+body::after{
+
+    content:"";
+
+    position:fixed;
+
+    inset:0;
+
+
+    background-image:
+
+    radial-gradient(
+        rgba(210,90,130,.08) 1px,
+        transparent 1px
+    );
+
+
+    background-size:20px 20px;
+
+    opacity:.35;
+
+    pointer-events:none;
+
+    z-index:-1;
+
+}
+
+
+
+
+.container{
+
+    width:min(600px,100%);
+
+    margin:auto;
+
+}
+
+
+
+
+
+.header{
+
+    text-align:center;
+
+    margin-bottom:38px;
+
+}
+
+
+
+.header h1{
+
+    color:var(--main);
+
+    font-size:36px;
+
+    font-weight:700;
+
+    letter-spacing:-1px;
+
+}
+
+
+
+.header p{
+
+    margin-top:12px;
+
+    color:var(--sub);
+
+    font-size:15px;
+
+}
+
+
+
+
+
+.tools-grid{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:16px;
+
+}
+
+
+
+
+.tool-card{
+
+
+    display:flex;
+
+    align-items:center;
+
+
+    padding:20px;
+
+
+    background:
+
+    rgba(255,255,255,.9);
+
+
+    border:1px solid var(--border);
+
+
+    border-radius:22px;
+
+
+    text-decoration:none;
+
+
+    color:inherit;
+
+
+    box-shadow:
+
+    0 10px 30px rgba(200,80,120,.08);
+
+
+    transition:.25s ease;
+
+
+    position:relative;
+
+
+    overflow:hidden;
+
+
+}
+
+
+
+
+
+.tool-card:hover{
+
+
+    transform:translateY(-4px);
+
+
+    box-shadow:
+
+    0 16px 35px rgba(200,80,120,.15);
+
+
+}
+
+
+
+
+
+.tool-card:active{
+
+
+    transform:scale(.98);
+
+
+    background:white;
+
+
+}
+
+
+
+
+
+
+.tool-icon{
+
+
+    width:50px;
+
+    height:50px;
+
+
+    border-radius:16px;
+
+
+    background:
+
+    linear-gradient(
+        145deg,
+        #d34d7d,
+        #ed8aaa
+    );
+
+
+    display:flex;
+
+
+    align-items:center;
+
+
+    justify-content:center;
+
+
+    flex-shrink:0;
+
+
+    box-shadow:
+
+    0 8px 18px rgba(211,77,125,.25);
+
+
+}
+
+
+
+
+
+
+.tool-icon svg{
+
+
+    width:26px;
+
+    height:26px;
+
+
+    fill:white;
+
+
+}
+
+
+
+
+
+
+.tool-content{
+
+
+    flex:1;
+
+    margin-left:16px;
+
+
+}
+
+
+
+
+
+.tool-content h3{
+
+
+    font-size:17px;
+
+    font-weight:600;
+
+
+    color:#422630;
+
+
+    margin-bottom:6px;
+
+
+}
+
+
+
+
+
+.tool-content p{
+
+
+    font-size:13px;
+
+
+    color:#9b858d;
+
+
+    line-height:1.5;
+
+
+}
+
+
+
+
+
+.loader-circle{
+
+
+    width:22px;
+
+    height:22px;
+
+
+    border-radius:50%;
+
+
+    border:3px solid #fde7ef;
+
+
+    border-top-color:var(--main);
+
+
+    animation:spin .7s linear infinite;
+
+
+    display:none;
+
+
+}
+
+
+
+
+
+@keyframes spin{
+
+
+    from{
+
+        transform:rotate(0deg);
+
     }
 
-    /* ============================================================
-       卡片网格 — 3D 倾斜 + 鼠标跟随光效
-       ============================================================ */
-    .cards {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 18px;
-      margin: 88px 0 120px;
-      perspective: 1200px;
+
+    to{
+
+        transform:rotate(360deg);
+
     }
 
-    .card {
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      padding: 32px 30px 28px;
-      background: var(--card);
-      border: 1px solid var(--card-border);
-      border-radius: 22px;
-      box-shadow: var(--shadow-md);
-      overflow: hidden;
-      cursor: pointer;
-      opacity: 0;
-      transform: translateY(24px);
-      transition: transform 0.3s ease, box-shadow 0.3s ease,
-        border-color 0.3s ease, opacity 0.3s ease, filter 0.3s ease;
-      transform-style: preserve-3d;
-      will-change: transform;
-      isolation: isolate;
-    }
-    .card:nth-child(1) { animation: fadeUp 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.5s forwards; }
-    .card:nth-child(2) { animation: fadeUp 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.58s forwards; }
-    .card:nth-child(3) { animation: fadeUp 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.66s forwards; }
-    .card:nth-child(4) { animation: fadeUp 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.74s forwards; }
-    .card:nth-child(5) { animation: fadeUp 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.82s forwards; }
-    .card:nth-child(6) { animation: fadeUp 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.90s forwards; }
 
-    /* 鼠标跟随光斑层 */
-    .card-glow {
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      opacity: 0;
-      background: radial-gradient(
-        320px circle at var(--mx, 50%) var(--my, 50%),
-        var(--accent-glow),
-        transparent 60%
-      );
-      transition: opacity 0.3s ease;
-      z-index: 0;
-    }
-    .card:hover .card-glow { opacity: 1; }
+}
 
-    /* 顶部高光线 */
-    .card::before {
-      content: "";
-      position: absolute;
-      top: 0; left: 24px; right: 24px;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, var(--accent), transparent);
-      opacity: 0;
-      transition: opacity 0.3s ease;
-      z-index: 2;
-    }
-    .card:hover::before { opacity: 0.7; }
 
-    .card:hover {
-      border-color: var(--card-border-strong);
-      box-shadow: var(--shadow-lg);
+
+
+
+.footer{
+
+
+    text-align:center;
+
+
+    margin-top:50px;
+
+
+    color:#c2a8b1;
+
+
+    font-size:13px;
+
+
+}
+
+
+
+
+@media(max-width:600px){
+
+
+
+    body{
+
+        padding:30px 15px;
+
     }
 
-    /* 搜索匹配高亮 */
-    .card.match {
-      border-color: var(--highlight);
-      box-shadow: 0 0 0 1px var(--highlight), 0 0 0 5px var(--match-ring), var(--shadow-lg);
-    }
-    .card.dim { opacity: 0.32; filter: saturate(0.5); }
 
-    /* 点击压缩反馈 */
-    .card.pressed { transform: scale(0.98); }
 
-    .card-inner {
-      position: relative;
-      z-index: 1;
-      display: flex;
-      flex-direction: column;
-      flex: 1;
-      transition: transform 0.3s ease;
-      transform: translateZ(0);
-    }
-    .card:hover .card-inner { transform: translateZ(20px) translateY(-2px); }
+    .header h1{
 
-    .card-head {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      margin-bottom: 28px;
+        font-size:30px;
+
     }
 
-    .card-icon {
-      width: 50px; height: 50px;
-      display: grid;
-      place-items: center;
-      border-radius: 13px;
-      background: var(--accent-soft);
-      color: var(--accent);
-      border: 1px solid var(--card-border);
-      transition: all 0.3s ease;
-      transform: translateZ(0);
-    }
-    .card:hover .card-icon {
-      background: var(--accent);
-      color: var(--bg);
-      border-color: var(--accent);
-      transform: translateZ(30px);
-    }
-    .card-icon svg { width: 23px; height: 23px; }
 
-    .card-num {
-      font-size: 11.5px;
-      font-variant-numeric: tabular-nums;
-      letter-spacing: 0.1em;
-      color: var(--text-muted);
-      font-weight: 500;
-      font-family: "SF Mono", "JetBrains Mono", "Menlo", monospace;
+
+    .tool-card{
+
+        padding:17px;
+
     }
 
-    .card-title {
-      font-size: 24px;
-      font-weight: 600;
-      letter-spacing: -0.02em;
-      color: var(--text);
-      margin-bottom: 4px;
-    }
-    .card-subtitle {
-      font-size: 12px;
-      font-weight: 500;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--accent);
-      margin-bottom: 16px;
-      font-family: "SF Mono", "JetBrains Mono", "Menlo", monospace;
-    }
-    .card-desc {
-      font-size: 13.5px;
-      line-height: 1.65;
-      color: var(--text-soft);
-      margin-bottom: 28px;
-      flex: 1;
+
+
+    .tool-icon{
+
+        width:44px;
+
+        height:44px;
+
     }
 
-    .card-enter {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      align-self: flex-start;
-      padding: 10px 16px 10px 18px;
-      font-size: 13.5px;
-      font-weight: 500;
-      color: var(--text);
-      background: var(--card-2);
-      border: 1px solid var(--card-border);
-      border-radius: 999px;
-      transition: all 0.3s ease;
-      overflow: hidden;
-    }
-    .card-enter .arrow {
-      display: inline-flex;
-      transition: transform 0.3s ease;
-    }
-    .card-enter .arrow svg { width: 14px; height: 14px; display: block; }
-    .card:hover .card-enter {
-      background: var(--accent);
-      color: var(--bg);
-      border-color: var(--accent);
-    }
-    .card:hover .card-enter .arrow { transform: translateX(4px); }
 
-    /* 加载旋转圈 */
-    .card-loader {
-      width: 14px;
-      height: 14px;
-      border: 2px solid var(--card-border);
-      border-top-color: var(--accent);
-      border-radius: 50%;
-      animation: spin 0.4s linear 2;
-      display: none;
-      flex-shrink: 0;
-    }
-    .card.loading .card-loader { display: inline-block; }
-    .card.loading .card-enter .arrow { display: none; }
 
-    /* 点击波纹 */
-    .ripple {
-      position: absolute;
-      border-radius: 50%;
-      background: var(--ripple);
-      transform: scale(0);
-      animation: rippleAnim 0.65s ease-out;
-      pointer-events: none;
-      z-index: 0;
+    .tool-content h3{
+
+        font-size:16px;
+
     }
 
-    /* ============================================================
-       Footer
-       ============================================================ */
-    .footer {
-      position: relative;
-      z-index: 1;
-      border-top: 1px solid var(--card-border);
-      transition: border-color 0.4s ease;
-    }
-    .footer-inner {
-      max-width: 1180px;
-      margin: 0 auto;
-      padding: 36px 56px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 24px;
-      flex-wrap: wrap;
-    }
-    .footer-copy {
-      font-size: 12.5px;
-      color: var(--text-soft);
-      letter-spacing: 0.01em;
-    }
-    .footer-copy b { color: var(--text); font-weight: 500; }
-    .footer-copy .sep { color: var(--text-muted); margin: 0 8px; }
 
-    .footer-stats {
-      display: flex;
-      align-items: center;
-      gap: 28px;
-    }
-    .stat {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-    .stat-value {
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--text);
-      font-variant-numeric: tabular-nums;
-      font-family: "SF Mono", "JetBrains Mono", "Menlo", monospace;
-    }
-    .stat-label {
-      font-size: 10.5px;
-      color: var(--text-muted);
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-    }
-    .stat-dot {
-      display: inline-flex;
-      align-items: center;
-      gap: 7px;
-      font-size: 12px;
-      color: var(--text-muted);
-    }
-    .stat-dot::before {
-      content: "";
-      width: 6px; height: 6px;
-      border-radius: 50%;
-      background: var(--highlight);
-      box-shadow: 0 0 0 3px var(--highlight-soft);
-    }
 
-    /* ============================================================
-       返回顶部
-       ============================================================ */
-    .back-top {
-      position: fixed;
-      right: 32px; bottom: 32px;
-      width: 44px; height: 44px;
-      display: grid;
-      place-items: center;
-      border-radius: 50%;
-      background: var(--card);
-      border: 1px solid var(--card-border);
-      box-shadow: var(--shadow-md);
-      color: var(--text-soft);
-      opacity: 0;
-      visibility: hidden;
-      transform: translateY(12px) scale(0.9);
-      transition: all 0.3s ease;
-      z-index: 90;
-    }
-    .back-top.show {
-      opacity: 1;
-      visibility: visible;
-      transform: translateY(0) scale(1);
-    }
-    .back-top:hover {
-      color: var(--accent);
-      border-color: var(--accent);
-      transform: translateY(-2px);
-    }
-    .back-top svg { width: 18px; height: 18px; }
+}
 
-    /* ============================================================
-       动画关键帧
-       ============================================================ */
-    @keyframes fadeUp {
-      to { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes rippleAnim {
-      to { transform: scale(4); opacity: 0; }
-    }
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
 
-    /* ============================================================
-       响应式：平板两列
-       ============================================================ */
-    @media (max-width: 1023px) {
-      .header { padding: 14px 32px; }
-      .header-left { gap: 28px; }
-      .nav-links { gap: 22px; }
-      .main { padding: 0 32px; }
-      .hero { padding: 88px 0 24px; }
-      .cards { grid-template-columns: repeat(2, 1fr); gap: 18px; margin: 64px 0 88px; }
-      .footer-inner { padding: 32px; }
-    }
 
-    /* ============================================================
-       响应式：手机单列，禁用 hover 倾斜
-       ============================================================ */
-    @media (max-width: 767px) {
-      .header { padding: 13px 20px; }
-      .nav-links { display: none; }
-      .brand-name { font-size: 14px; }
-      .clock-date, .clock-sep { display: none; }
-      .main { padding: 0 20px; }
-      .hero { padding: 64px 0 16px; }
-      .hero-title { font-size: 38px; letter-spacing: -0.03em; }
-      .hero-sub { font-size: 15.5px; }
-      .cards { grid-template-columns: 1fr; gap: 14px; margin: 48px 0 72px; perspective: none; }
-      .card { padding: 28px 24px 24px; transform: none !important; }
-      .card:hover .card-inner { transform: none; }
-      .card:hover .card-icon { transform: none; }
-      .footer-inner {
-        padding: 28px 20px;
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 18px;
-      }
-      .footer-stats { gap: 22px; }
-      .back-top { right: 20px; bottom: 20px; }
-    }
+</style>
 
-    /* 触摸设备：禁用 3D 倾斜与跟随光斑 */
-    @media (hover: none) {
-      .cards { perspective: none; }
-      .card { transform: none !important; }
-      .card:hover .card-inner,
-      .card:hover .card-icon { transform: none; }
-      .card-glow { display: none; }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after {
-        animation-duration: 0.01ms !important;
-        transition-duration: 0.01ms !important;
-      }
-    }
-  </style>
 </head>
 
+
 <body>
-  <!-- 顶部加载进度条 -->
-  <div class="progress" id="progress" aria-hidden="true"></div>
 
-  <!-- 背景层 -->
-  <div class="bg-layer" aria-hidden="true">
-    <div class="blob blob-a"></div>
-    <div class="blob blob-b"></div>
-    <div class="grain"></div>
-  </div>
 
-  <!-- Header -->
-  <header class="header" id="header">
-    <div class="header-left">
-      <a class="brand" href="index.html" aria-label="返回首页">
-        <span class="brand-mark" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M4 18L12 4l8 14" />
-            <path d="M8 18h8" />
-          </svg>
-        </span>
-        <span class="brand-name">小豆<span>·</span>工具箱</span>
-      </a>
+<div class="container">
 
-      <nav class="nav-links" aria-label="主导航">
-        <a class="nav-link" href="index.html">入口</a>
-        <a class="nav-link active" href="#">工具箱</a>
-        <a class="nav-link" href="#">文档</a>
-      </nav>
-    </div>
 
-    <div class="header-tools">
-      <div class="clock" id="clock" aria-live="polite">
-        <span class="clock-date" id="clockDate">—</span>
-        <span class="clock-sep" aria-hidden="true"></span>
-        <span class="clock-time" id="clockTime">—:—:—</span>
-      </div>
+<div class="header">
 
-      <button class="theme-toggle" id="themeToggle" type="button" aria-label="切换深色 / 浅色主题">
-        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="4" />
-          <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
-        </svg>
-        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-        </svg>
-      </button>
-    </div>
-  </header>
+<h1>
+实用工具库
+</h1>
 
-  <!-- Main -->
-  <main class="main">
-    <!-- Hero -->
-    <section class="hero">
-      <span class="hero-eyebrow">
-        <span class="dot"></span>
-        Tools 实用工具
-      </span>
-      <h1 class="hero-title">实用工具库，<em>一键直达</em></h1>
-      <p class="hero-sub">
-        整合账号检测、UID提取、2FA验证等高频工具，以克制的视觉与精准的交互，让每一次使用都沉稳而高效。
-      </p>
+<p>
+高效便捷 · 一键直达
+</p>
 
-      <!-- 搜索 -->
-      <div class="search">
-        <div class="search-field">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="11" cy="11" r="7" />
-            <path d="M21 21l-4.3-4.3" />
-          </svg>
-          <input
-            type="text"
-            class="search-input"
-            id="searchInput"
-            placeholder="搜索工具 · 账号检测 / UID / 2FA / Cookie"
-            autocomplete="off"
-            aria-label="搜索工具"
-          />
-        </div>
-        <p class="search-hint">
-          快捷键 <kbd>Alt</kbd> + <kbd>1</kbd> ~ <kbd>6</kbd> 直接进入对应工具
-        </p>
-      </div>
-    </section>
+</div>
 
-    <!-- 工具卡片网格 -->
-    <section class="cards" id="cards" aria-label="工具导航卡片"></section>
-  </main>
 
-  <!-- Footer -->
-  <footer class="footer">
-    <div class="footer-inner">
-      <p class="footer-copy">
-        © <span id="year">2026</span> <b>小豆</b>
-        <span class="sep">·</span> 实用工具库
-        <span class="sep">·</span> All rights reserved
-      </p>
-      <div class="footer-stats">
-        <div class="stat">
-          <span class="stat-value" id="statVisit">—</span>
-          <span class="stat-label">今日访问</span>
-        </div>
-        <div class="stat">
-          <span class="stat-value" id="statTotal">—</span>
-          <span class="stat-label">累计访问</span>
-        </div>
-        <span class="stat-dot">系统运行正常</span>
-      </div>
-    </div>
-  </footer>
 
-  <!-- 返回顶部 -->
-  <button class="back-top" id="backTop" type="button" aria-label="返回顶部">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M12 19V5M5 12l7-7 7 7" />
-    </svg>
-  </button>
+<div class="tools-grid">
+<a href="#" class="tool-card" data-url="/uid">
 
-  <script>
-    /* ============================================================
-       模块化 JavaScript
-       配置统一集中在 CONFIG，便于后续维护
-       ============================================================ */
+<div class="tool-icon">
 
-    /* ------------------------------------------------------------
-       配置区：工具卡片数据
-       currentWindow 为 true 的工具在当前窗口跳转，否则新窗口打开
-       ------------------------------------------------------------ */
-    const CONFIG = {
-      cards: [
-        {
-          key: 'account-check',
-          num: '01',
-          title: '账号检测',
-          subtitle: 'Account Check',
-          desc: '快速检测账号状态，高效排查异常。',
-          url: '/uid',
-          currentWindow: true,
-          icon: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>',
-        },
-        {
-          key: 'uid-extract',
-          num: '02',
-          title: 'cookie提取',
-          subtitle: 'UID Extract',
-          desc: '一键提取用户ID，操作简单高效。',
-          url: '/cookie',
-          currentWindow: true,
-          icon: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 11H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2zm2-7h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z"/></svg>',
-        },
-        {
-          key: '2fa-verify',
-          num: '03',
-          title: '2FA验证',
-          subtitle: '2FA Verify',
-          desc: '双重身份验证，保障账号安全。',
-          url: '/2fa',
-          currentWindow: true,
-          icon: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>',
-        },
-        {
-          key: 'cookie-login',
-          num: '04',
-          title: 'Cookie登录',
-          subtitle: 'Cookie Login',
-          desc: 'Facebook Cookie 注入登录。',
-          url: 'https://www.584136.xyz/facebook-cookie-injector',
-          currentWindow: false,
-          icon: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zM9 6c0-1.66 1.34-3 3-3s3 1.34 3 3v2H9V6zm9 14H6V10h12v10zm-6-3c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2z"/></svg>',
-        },
-        {
-          key: 'fb-versions',
-          num: '05',
-          title: '脸书全版本',
-          subtitle: 'FB Versions',
-          desc: '各版本 FB 下载，密码：6666。',
-          url: 'https://wwq.lanzouo.com/b0138yob6j',
-          currentWindow: false,
-          icon: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M21 2H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h7l-2 3v1h8v-1l-2-3h7c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 12H3V4h18v10z"/></svg>',
-        },
-        {
-          key: 'software-download',
-          num: '06',
-          title: '软件下载',
-          subtitle: 'Software Download',
-          desc: '海量软件资源，便捷获取。',
-          url: 'https://wwwh.qyshare.com:2999/s/6q90gz',
-          currentWindow: false,
-          icon: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>',
-        },
-      ],
-    };
+<svg viewBox="0 0 24 24">
+<path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+</svg>
 
-    /* ------------------------------------------------------------
-       卡片渲染 + 3D 倾斜 + 鼠标跟随光效 + 点击波纹 + 加载跳转
-       ------------------------------------------------------------ */
-    const CardsModule = (function () {
-      const container = document.getElementById('cards');
-      const tiltEnabled = window.matchMedia('(hover: hover) and (min-width: 768px)').matches;
-      const MAX_TILT = 6;
-      const TOTAL = CONFIG.cards.length;
-      const LOADER_DELAY = 800;
+</div>
 
-      function render() {
-        const totalStr = String(TOTAL).padStart(2, '0');
-        container.innerHTML = CONFIG.cards.map((c) => `
-          <article class="card" data-key="${c.key}" data-url="${c.url}" data-current="${c.currentWindow}" tabindex="0" role="link" aria-label="进入${c.title}工具">
-            <div class="card-glow" aria-hidden="true"></div>
-            <div class="card-inner">
-              <div class="card-head">
-                <div class="card-icon" aria-hidden="true">${c.icon}</div>
-                <span class="card-num">${c.num} / ${totalStr}</span>
-              </div>
-              <h2 class="card-title">${c.title}</h2>
-              <p class="card-subtitle">${c.subtitle}</p>
-              <p class="card-desc">${c.desc}</p>
-              <span class="card-enter">
-                进入
-                <span class="arrow">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                </span>
-                <span class="card-loader" aria-hidden="true"></span>
-              </span>
-            </div>
-          </article>
-        `).join('');
-        bindEvents();
-      }
 
-      function bindEvents() {
-        container.querySelectorAll('.card').forEach((card) => {
-          if (tiltEnabled) {
-            card.addEventListener('mousemove', (e) => handleMouseMove(e, card));
-            card.addEventListener('mouseleave', () => resetCard(card));
-          }
+<div class="tool-content">
 
-          const trigger = (e) => {
-            if (card.classList.contains('loading')) return;
-            createRipple(e, card);
-            card.classList.add('pressed', 'loading');
-            setTimeout(() => card.classList.remove('pressed'), 180);
+<h3>
+账号检测
+</h3>
 
-            const url = card.dataset.url;
-            const currentWindow = card.dataset.current === 'true';
+<p>
+快速检测账号状态，高效排查异常
+</p>
 
-            setTimeout(() => {
-              card.classList.remove('loading');
-              if (currentWindow) {
-                window.location.href = url;
-              } else {
-                window.open(url, '_blank');
-              }
-            }, LOADER_DELAY);
-          };
+</div>
 
-          card.addEventListener('click', trigger);
-          card.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-              e.preventDefault();
-              trigger(e);
-            }
-          });
-        });
-      }
 
-      function handleMouseMove(e, card) {
-        const rect = card.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-        const px = (x / rect.width) * 100;
-        const py = (y / rect.height) * 100;
+<div class="loader-circle"></div>
 
-        card.style.setProperty('--mx', px + '%');
-        card.style.setProperty('--my', py + '%');
+</a>
 
-        const rotateY = ((px / 100) - 0.5) * 2 * MAX_TILT;
-        const rotateX = -((py / 100) - 0.5) * 2 * MAX_TILT;
-        card.style.transform =
-          `perspective(1000px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) translateY(-5px)`;
-      }
 
-      function resetCard(card) {
-        card.style.transform = '';
-        card.style.setProperty('--mx', '50%');
-        card.style.setProperty('--my', '50%');
-      }
 
-      function createRipple(event, card) {
-        const rect = card.getBoundingClientRect();
-        const size = Math.max(rect.width, rect.height);
-        const x = (event.clientX || rect.left + rect.width / 2) - rect.left - size / 2;
-        const y = (event.clientY || rect.top + rect.height / 2) - rect.top - size / 2;
-        const ripple = document.createElement('span');
-        ripple.className = 'ripple';
-        ripple.style.width = ripple.style.height = size + 'px';
-        ripple.style.left = x + 'px';
-        ripple.style.top = y + 'px';
-        card.appendChild(ripple);
-        ripple.addEventListener('animationend', () => ripple.remove());
-      }
+<a href="#" class="tool-card" data-url="/cookie">
 
-      return { render, container };
-    })();
+<div class="tool-icon">
 
-    /* ------------------------------------------------------------
-       主题切换：默认暗色，localStorage 持久化
-       ------------------------------------------------------------ */
-    const ThemeModule = (function () {
-      const toggle = document.getElementById('themeToggle');
-      const KEY = '小豆-theme';
+<svg viewBox="0 0 24 24">
 
-      function init() {
-        const saved = localStorage.getItem(KEY);
-        if (saved) apply(saved);
-        toggle.addEventListener('click', switchTheme);
-      }
+<path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14H7v-2h5v2zm5-4H7v-2h10v2zm0-4H7V7h10v2z"/>
 
-      function apply(theme) {
-        document.documentElement.setAttribute('data-theme', theme);
-      }
+</svg>
 
-      function switchTheme() {
-        const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-        apply(next);
-        localStorage.setItem(KEY, next);
-      }
+</div>
 
-      return { init };
-    })();
 
-    /* ------------------------------------------------------------
-       实时时钟
-       ------------------------------------------------------------ */
-    const ClockModule = (function () {
-      const dateEl = document.getElementById('clockDate');
-      const timeEl = document.getElementById('clockTime');
-      const weekdays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
-      const pad = (n) => (n < 10 ? '0' + n : '' + n);
+<div class="tool-content">
 
-      function tick() {
-        const now = new Date();
-        dateEl.textContent = `${now.getMonth() + 1}月${now.getDate()}日 ${weekdays[now.getDay()]}`;
-        timeEl.textContent = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
-      }
+<h3>
+cookie提取工具
+</h3>
 
-      function init() {
-        tick();
-        setInterval(tick, 1000);
-      }
+<p>
+一键提取用户cookie，操作简单高效
+</p>
 
-      return { init };
-    })();
+</div>
 
-    /* ------------------------------------------------------------
-       搜索高亮：匹配中英文关键词
-       ------------------------------------------------------------ */
-    const SearchModule = (function () {
-      const input = document.getElementById('searchInput');
 
-      function init() {
-        input.addEventListener('input', handleInput);
-      }
+<div class="loader-circle"></div>
 
-      function handleInput(e) {
-        const kw = e.target.value.trim().toLowerCase();
-        const list = document.querySelectorAll('.card');
+</a>
 
-        if (!kw) {
-          list.forEach((c) => c.classList.remove('match', 'dim'));
-          return;
-        }
 
-        let firstMatch = null;
-        list.forEach((c) => {
-          const title = (c.querySelector('.card-title').textContent || '').toLowerCase();
-          const subtitle = (c.querySelector('.card-subtitle').textContent || '').toLowerCase();
-          const desc = (c.querySelector('.card-desc').textContent || '').toLowerCase();
-          const key = (c.dataset.key || '').toLowerCase();
-          const matched = title.includes(kw) || subtitle.includes(kw) ||
-            desc.includes(kw) || key.includes(kw);
 
-          c.classList.toggle('match', matched);
-          c.classList.toggle('dim', !matched);
-          if (matched && !firstMatch) firstMatch = c;
-        });
 
-        if (firstMatch) {
-          firstMatch.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-      }
+<a href="#" class="tool-card" data-url="/2fa">
 
-      return { init };
-    })();
+<div class="tool-icon">
 
-    /* ------------------------------------------------------------
-       快捷键：Alt + 1 ~ 6
-       ------------------------------------------------------------ */
-    const ShortcutModule = (function () {
-      const KEYS = ['1', '2', '3', '4', '5', '6'];
+<svg viewBox="0 0 24 24">
 
-      function init() {
-        document.addEventListener('keydown', handleKey);
-      }
+<path d="M12 1a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V11a2 2 0 0 0-2-2h-1V6a5 5 0 0 0-5-5zm-3 8V6a3 3 0 0 1 6 0v3H9z"/>
 
-      function handleKey(e) {
-        if (!e.altKey) return;
-        const idx = KEYS.indexOf(e.key);
-        if (idx === -1) return;
+</svg>
 
-        e.preventDefault();
-        const card = CONFIG.cards[idx];
-        if (!card) return;
+</div>
 
-        const el = document.querySelector(`.card[data-key="${card.key}"]`);
-        if (el) {
-          el.classList.add('match');
-          setTimeout(() => el.classList.remove('match'), 600);
-        }
 
-        setTimeout(() => {
-          if (card.currentWindow) {
-            window.location.href = card.url;
-          } else {
-            window.open(card.url, '_blank');
-          }
-        }, 200);
-      }
+<div class="tool-content">
 
-      return { init };
-    })();
+<h3>
+2FA验证
+</h3>
 
-    /* ------------------------------------------------------------
-       返回顶部 + Header 滚动状态
-       ------------------------------------------------------------ */
-    const ScrollModule = (function () {
-      const backTop = document.getElementById('backTop');
-      const header = document.getElementById('header');
+<p>
+双重身份验证，保障账号安全
+</p>
 
-      function init() {
-        window.addEventListener('scroll', handle, { passive: true });
-      }
+</div>
 
-      function handle() {
-        const y = window.scrollY;
-        backTop.classList.toggle('show', y > 320);
-        header.classList.toggle('scrolled', y > 8);
-      }
 
-      return { init };
-    })();
+<div class="loader-circle"></div>
 
-    /* ------------------------------------------------------------
-       加载进度条
-       ------------------------------------------------------------ */
-    const ProgressModule = (function () {
-      const bar = document.getElementById('progress');
+</a>
 
-      function init() {
-        bar.classList.add('active');
-        let p = 0;
-        const step = () => {
-          p += Math.random() * 16 + 8;
-          if (p >= 100) {
-            bar.style.width = '100%';
-            setTimeout(() => {
-              bar.classList.remove('active');
-              bar.style.width = '0';
-            }, 450);
-            return;
-          }
-          bar.style.width = p + '%';
-          requestAnimationFrame(step);
-        };
-        requestAnimationFrame(step);
-      }
 
-      return { init };
-    })();
 
-    /* ------------------------------------------------------------
-       Footer 年份 + 访问统计占位
-       ------------------------------------------------------------ */
-    const FooterModule = (function () {
-      function init() {
-        document.getElementById('year').textContent = new Date().getFullYear();
 
-        const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
-        document.getElementById('statVisit').textContent = rand(120, 880).toLocaleString();
-        document.getElementById('statTotal').textContent = rand(86000, 128000).toLocaleString();
-      }
+<a href="#" class="tool-card" data-url="https://www.584136.xyz/facebook-cookie-injector">
 
-      return { init };
-    })();
+<div class="tool-icon">
 
-    /* ------------------------------------------------------------
-       初始化
-       ------------------------------------------------------------ */
-    document.addEventListener('DOMContentLoaded', () => {
-      CardsModule.render();
-      ThemeModule.init();
-      ClockModule.init();
-      SearchModule.init();
-      ShortcutModule.init();
-      ScrollModule.init();
-      ProgressModule.init();
-      FooterModule.init();
-    });
-  </script>
+<svg viewBox="0 0 24 24">
+
+<path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2z"/>
+
+</svg>
+
+</div>
+
+
+<div class="tool-content">
+
+<h3>
+Cookie登录
+</h3>
+
+<p>
+Facebook Cookie注入登录
+</p>
+
+</div>
+
+
+<div class="loader-circle"></div>
+
+</a>
+
+
+
+
+<a href="#" class="tool-card" data-url="https://wwq.lanzouo.com/b0138yob6j">
+
+<div class="tool-icon">
+
+<svg viewBox="0 0 24 24">
+
+<path d="M21 2H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h7l-2 3v1h8v-1l-2-3h7c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/>
+
+</svg>
+
+</div>
+
+
+<div class="tool-content">
+
+<h3>
+脸书全版本
+</h3>
+
+<p>
+各版本FB下载，密码:6666
+</p>
+
+</div>
+
+
+<div class="loader-circle"></div>
+
+</a>
+
+
+
+
+<a href="#" class="tool-card" data-url="https://wwwh.qyshare.com:2999/s/6q90gz">
+
+<div class="tool-icon">
+
+<svg viewBox="0 0 24 24">
+
+<path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+
+</svg>
+
+</div>
+
+
+<div class="tool-content">
+
+<h3>
+软件下载
+</h3>
+
+<p>
+海量软件资源，便捷获取
+</p>
+
+</div>
+
+
+<div class="loader-circle"></div>
+
+</a>
+
+
+</div>
+
+
+
+<div class="footer">
+
+实用工具库 © 2026 高效便捷
+
+</div>
+
+
+
+</div>
+
+
+
+
+<script>
+
+
+const cards =
+document.querySelectorAll(".tool-card");
+
+
+
+cards.forEach((card,index)=>{
+
+
+card.addEventListener(
+"click",
+function(e){
+
+
+e.preventDefault();
+
+
+
+const url =
+this.dataset.url;
+
+
+
+const loader =
+this.querySelector(".loader-circle");
+
+
+
+loader.style.display="block";
+
+
+
+setTimeout(()=>{
+
+
+loader.style.display="none";
+
+
+
+if(index<3){
+
+
+window.location.href=url;
+
+
+}else{
+
+
+window.open(
+url,
+"_blank"
+);
+
+
+}
+
+
+
+},600);
+
+
+
+});
+
+
+});
+
+
+
+</script>
+
+
 </body>
+
 </html>
